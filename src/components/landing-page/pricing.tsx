@@ -4,18 +4,13 @@ import AnimatedGradientText from "@/components/ui/animated-gradient-text";
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Tables } from "@datatypes.types";
+import type { ProductWithPrices } from "@/lib/billing-types";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-type Product = Tables<"ai_image_products">;
-type Price = Tables<"ai_image_prices">;
-interface ProductWithPrices extends Product {
-  prices: Price[];
-}
 interface PricingProps {
   products: ProductWithPrices[];
   mostPopularProduct?: string;

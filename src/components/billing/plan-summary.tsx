@@ -1,4 +1,8 @@
 import { Tables } from "@datatypes.types";
+import {
+  type ProductWithPrices,
+  type SubscriptionWithProduct,
+} from "@/lib/billing-types";
 import { User } from "@supabase/supabase-js";
 import React from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -7,21 +11,6 @@ import { Progress } from "@/components/ui/progress";
 import PricingSheet from "./pricing-sheet";
 import { format } from "date-fns";
 import { useTranslations } from "next-intl";
-
-type Product = Tables<"ai_image_products">;
-type Price = Tables<"ai_image_prices">;
-type Subscription = Tables<"ai_image_subscriptions">;
-
-interface ProductWithPrices extends Product {
-  prices: Price[];
-}
-interface PriceWithProduct extends Price {
-  products: Product | null;
-}
-
-interface SubscriptionWithProduct extends Subscription {
-  prices: PriceWithProduct | null;
-}
 
 interface PlanSummarryProps {
   subscription: SubscriptionWithProduct | null;

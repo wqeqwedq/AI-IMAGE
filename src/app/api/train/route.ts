@@ -3,9 +3,13 @@ import { createServer } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import Replicate from "replicate";
 
-const replicate = new Replicate({
-    auth: process.env.REPLICATE_API_TOKEN
-})
+function getReplicate(): Replicate {
+    const auth = process.env.REPLICATE_API_TOKEN;
+    if (!auth?.trim()) {
+        throw new Error("REPLICATE_API_TOKEN is not configured.");
+    }
+    return new Replicate({ auth });
+}
 
 const webhook_url = process.env.NEXT_PUBLIC_SITE_URL || ''
 
@@ -59,13 +63,13 @@ export async function POST(request: NextRequest) {
 
 
         const modelId = `${user.id}_${Date.now()}_${input.modelName.toLowerCase().replaceAll(" ", "_")}`
-        await replicate.models.create("geallenboy", modelId, {
+        await getReplicate().models.create("geallenboy", modelId, {
             visibility: "private",
             hardware: "gpu-a100-large"
         })
 
         //start training
-        const training = await replicate.trainings.create(
+        const training = await getReplicate().trainings.create(
             "ostris",
             "flux-dev-lora-trainer",
             "e440909d3512c31646ee2e0c7d6f6f4923224863a6a10c494606e79fb5844497",

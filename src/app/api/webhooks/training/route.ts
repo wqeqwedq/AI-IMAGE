@@ -5,12 +5,21 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { Resend } from 'resend';
 import EmailTemplate from "@/components/email-telplates/email-template";
 
+function getReplicate(): Replicate {
+    const auth = process.env.REPLICATE_API_TOKEN;
+    if (!auth?.trim()) {
+        throw new Error("REPLICATE_API_TOKEN is not configured.");
+    }
+    return new Replicate({ auth });
+}
 
-const replicate = new Replicate({
-    auth: process.env.REPLICATE_API_TOKEN
-})
-const resend = new Resend(process.env.RESEND_API_KEY);
-
+function getResend(): Resend {
+    const key = process.env.RESEND_API_KEY;
+    if (!key?.trim()) {
+        throw new Error("RESEND_API_KEY is not configured.");
+    }
+    return new Resend(key);
+}
 
 export async function POST(req: Request) {
 
@@ -27,7 +36,7 @@ export async function POST(req: Request) {
         const webhookSignature = req.headers.get("webhook-signature") ?? ""
 
         const signedContent = `${webhookId}.${webhookTimestamp}.${JSON.stringify(body)}`
-        const secret = await replicate.webhooks.default.secret.get();
+        const secret = await getReplicate().webhooks.default.secret.get();
 
         // Base64 decode the secret
         const secretBytes = Buffer.from(secret.key.split('_')[1], "base64");
@@ -55,7 +64,7 @@ export async function POST(req: Request) {
         console.log(body.status, userEmail, userName, "==>")
         if (body.status === "succeeded") {
             //send asuccessfuly status email
-            await resend.emails.send({
+            await getResend().emails.send({
                 from: 'garron AI <onboarding@resend.dev>',
                 to: [userEmail],
                 subject: 'Model Training Completed',
@@ -69,7 +78,7 @@ export async function POST(req: Request) {
             }).eq("user_id", userId).eq("model_name", modelName)
         } else {
             //handle the failed and the canceled status
-            await resend.emails.send({
+            await getResend().emails.send({
                 from: 'garron AI <onboarding@resend.dev>',
                 to: [userEmail],
                 subject: `Model Training ${body.status}`,

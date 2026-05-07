@@ -3,8 +3,14 @@ import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Tables } from "@datatypes.types";
+import {
+  type ProductWithPrices,
+  type SubscriptionWithProduct,
+} from "@/lib/billing-types";
+import type { Tables } from "@datatypes.types";
 import { Badge } from "@/components/ui/badge";
+
+type Price = Tables<"ai_image_prices">;
 import { Button } from "@/components/ui/button";
 import { User } from "@supabase/supabase-js";
 import { checkoutWithStripe, createStripePortal } from "@/lib/stripe/server";
@@ -13,21 +19,6 @@ import { getErrorRedirect } from "@/lib/helpers";
 import { getStripe } from "@/lib/stripe/client";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
-
-type Product = Tables<"ai_image_products">;
-type Price = Tables<"ai_image_prices">;
-type Subscription = Tables<"ai_image_subscriptions">;
-
-interface ProductWithPrices extends Product {
-  prices: Price[];
-}
-interface PriceWithProduct extends Price {
-  products: Product | null;
-}
-
-interface SubscriptionWithProduct extends Subscription {
-  prices: PriceWithProduct | null;
-}
 
 interface PricingProps {
   subscription: SubscriptionWithProduct | null;
