@@ -1,0 +1,384 @@
+{
+  "LocaleSwitcher": {
+    "zh": "China",
+    "en": "English",
+    "label": "Language"
+  },
+  "themeConfig": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "app": {
+    "name": "AI Image",
+    "textPro": "Pro"
+  },
+  "announcement": {
+    "acknowledge": "Got it",
+    "saveReadError": "Could not save acknowledgement. Try again.",
+    "openHistoryAria": "View announcement history",
+    "historyTitle": "Announcement history",
+    "historySubtitle": "Published announcements that have started (including ended). Expand a row to read the full text.",
+    "historyLoading": "Loading…",
+    "historyEmpty": "No announcements yet.",
+    "statusActive": "Active",
+    "statusEnded": "Ended"
+  },
+  "helpFeedback": {
+    "pageTitle": "Help & feedback",
+    "formTitle": "Send feedback",
+    "label": "Your message",
+    "placeholder": "Bug reports, feature ideas, unclear UI copy…",
+    "submit": "Submit",
+    "submitting": "Submitting…",
+    "success": "Thanks—we received your feedback.",
+    "errorEmpty": "Please enter a message.",
+    "errorTooLong": "Message is too long. Shorten it and try again.",
+    "errorUnauthorized": "Please sign in first.",
+    "errorGeneric": "Could not submit. Try again later."
+  },
+  "login": {
+    "google": "Sign in with Google",
+    "github": "Sign in with Github",
+    "loginForm": {
+      "name": "Login",
+      "title1": "Enter your email below to login to your account",
+      "email": "email",
+      "password": "password",
+      "passwordInfo": "Enter your password",
+      "btn": "Submit",
+      "btn1": "Need an account? Sign up",
+      "btn2": "Forgot pasword?",
+      "info1": "signup...",
+      "info2": "login successfully !",
+      "emailMessage": "Please enter a valid email address!",
+      "passwordMessage": "Password must be at least 8 characters long.",
+      "emailNotConfirmed": "This email is not verified yet. Open the message we sent when you signed up and click the confirmation link, then try logging in again. Check spam if you don't see it."
+    },
+    "signUpForm": {
+      "name": "Sign Up",
+      "title1": "Enter your inforation below to create an account",
+      "email": "email",
+      "password": "password",
+      "fullNameMessage": "Your name must be at least 3 characters long.",
+      "emailMessage": "Please enter a valid email address!",
+      "passwordString": "Password is required!",
+      "passwordMin": "Password must be at least 8 characters long.",
+      "confirmPasswordInfo": "Confirm passworrd is required!",
+      "passwordRefine": "Passwords don't match",
+      "info1": "signup...",
+      "info2": "Signed up successfully!",
+      "infoVerifyEmailTitle": "Check your email to verify your account",
+      "infoVerifyEmailDesc": "We sent a confirmation link to your inbox. Click the link in that email before signing in; you cannot log in until the address is verified.",
+      "fullName": "full name",
+      "fullNameInfo": "Enter your full name",
+      "passwordInfo": "Enter your password",
+      "confirmPassword": "confirm Password",
+      "confirmPasswordEnter": "confirmPassword  your password",
+      "btn1": "Sign up",
+      "btn2": "Already have an account? Log up",
+      "btn3": "By clicing sign up ,you aggree to our",
+      "btn4": "Terms of Service",
+      "btn5": "and",
+      "btn6": "Privacy policy."
+    },
+    "resetPassword": {
+      "name": "Reset Password",
+      "title1": "Enter your email below to rest your password",
+      "email": "email",
+      "emailMessage": "Please enter a valid email address!",
+      "passwordMessage": "Password must be at least 8 characters long.",
+      "password": "password",
+      "infoLoading": "Sending password reset email...",
+      "infoSuccess": "Password reset email sent! Please check your email for instructions",
+      "infoError": "There is an error sending the password reset email",
+      "btn1": "reset password",
+      "btn2": "Back to login"
+    }
+  },
+  "sidebar": {
+    "name": "Platform",
+    "upgrade": "Upgrade",
+    "settings": "Settings",
+    "billing": "Billing"
+  },
+  "home": {
+    "navigtion": {
+      "name": "dashboard",
+      "features": "Features",
+      "pricing": "Pricing",
+      "faqs": "FAQs",
+      "aboutMe": "AboutMe",
+      "github": "Github",
+      "signin": "signin",
+      "signup": "Sign up"
+    },
+    "faqs": {
+      "name": "FAQs",
+      "title": "Frequently Asked Questions",
+      "text": "Here are some of the most frequently asked questions about our product."
+    },
+    "features": {
+      "name": "features",
+      "title": " Unlock Unlimited Possibilities with AI Image",
+      "text": " Our platform offers a wide range of features designed to enhance your image creation experience. From easy-to-use editing tools to powerful AI-powered image generation, we have everything you need to bring your ideas to life."
+    },
+    "hero": {
+      "title1": "Try new flux model",
+      "title2": "Transform your photos with the power of AI",
+      "title3": " From headshots to influencer photos, AI Image &apos;s state-of-the-art technology ensures you always look your best. Create, edit, and generate images effortlessly.",
+      "title4": "Loved by 1k+ customers",
+      "title5": " Crreate Your First AI Image"
+    },
+    "price": {
+      "name": "price",
+      "title1": "Choose the plan that fits your needs",
+      "title2": "Choose an offordable plan that is packed with the best features for engaging your audience,createing customer loyalty and driving sales. engaging your",
+      "title3": "Monthly",
+      "title4": "Yearly",
+      "title5": "Most Popular",
+      "title6": "Subscribe",
+      "title7": "What's included",
+      "emptyPlans": "Pricing is not configured yet. Please check back later or sign in from the dashboard."
+    },
+    "footer": {
+      "title1": "Image AI Inc. All rights reserved.",
+      "title2": "Tems of Service",
+      "title3": "Privacy Policy"
+    },
+    "review": {
+      "title1": "Testimonials",
+      "title2": "What Our Users Say",
+      "title3": " Discover why thousands are choosing AI Image for effortless,high-quality photo generation, from LinkedIn headshots to vibrant social media content."
+    },
+    "ready": {
+      "title1": "Ready to Transform Your Photos?",
+      "title2": "Join thousands of users who are already creating amazing AI-generated images.",
+      "title3": "  Create Your First AI Model"
+    }
+  },
+  "dashboard": {
+    "title": "Welcome back",
+
+    "statsCards": {
+      "name1": "Total Images",
+      "info1": "Images generated so far",
+      "name2": "Total Models",
+      "info2": "Custom models trained",
+      "name3": "Image Credits",
+      "info3": "Available generation credits",
+      "name4": "Training Credits",
+      "info4": "Available training credits"
+    },
+    "recentImage": {
+      "title": "Recent Generations",
+      "info": "No images generated yet!",
+      "name": "View galler"
+    },
+    "recentModels": {
+      "title": "Recent Models",
+      "desc": "Get started with common actions",
+      "info": "No models trained yet"
+    },
+    "quickAction": {
+      "title": "Quick Actions",
+      "desc": "Get started with common actions",
+      "name1": "Generate Image",
+      "name2": "Preset library",
+      "name3": "Billing"
+    }
+  },
+  "modelTraining": {
+    "title": "Preset library",
+    "desc": "Save your usual style and generation settings to reuse on your next creation.\nAfter you add reference images, the AI can continue in the same visual style.\nAdd image links or upload from your device—up to 16 reference images.",
+    "presetsStudio": {
+      "myPresets": "My inspirations",
+      "loadedPreset": "Loaded preset: {title}",
+      "noUserPresets": "Nothing saved yet. Fill in the form on the right and save.",
+      "formTitle": "Generation settings",
+      "formDesc": "",
+      "fieldModel": "Model",
+      "fieldModelPlaceholder": "Choose a model",
+      "fieldPrompt": "Prompt (required)",
+      "fieldSize": "Aspect ratio",
+      "fieldResolution": "Resolution (1k / 2k / 4k)",
+      "selectSize": "Choose aspect ratio",
+      "selectResolution": "Choose resolution",
+      "fieldImageUrls": "Reference image URLs (optional)",
+      "fieldImageUrlsPlaceholder": "One image URL per line (optional)",
+      "fieldImageUrlsHint": "",
+      "fieldLocalRefs": "Upload reference images",
+      "pickLocalFiles": "Choose local images",
+      "removePendingFile": "Remove",
+      "pendingFilesHint": "",
+      "uploadRefsFailed": "Reference image upload failed",
+      "refLimitExceeded": "More than 16 reference URLs (lines + uploads). Remove some before saving.",
+      "presetNameLabel": "Preset name",
+      "presetNamePlaceholder": "e.g. Product shot — default",
+      "saveCreate": "Save as my preset",
+      "saveUpdate": "Update preset",
+      "titleRequired": "Please enter a preset name",
+      "promptRequired": "Please enter a prompt",
+      "saveFailed": "Save failed",
+      "createdPreset": "Saved to my presets",
+      "updatedPreset": "Preset updated",
+      "deletePreset": "Delete preset",
+      "confirmDeleteTitle": "Delete this preset?",
+      "confirmDeleteDesc": "Delete「{title}」? This cannot be undone.",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "deleteFailed": "Delete failed",
+      "deletedPreset": "Deleted"
+    }
+  },
+  "account": {
+    "title": "Account settings",
+    "desc": "Manage your account settings and preferences.",
+    "accountForm": {
+      "name": "Profile",
+      "desc": "Update your personal infomation",
+      "fullName": "fullName",
+      "email": "email",
+      "emailDesc": "Your email address is used for sign in add communication.",
+      "button": "update profile",
+      "infoLoading": "Updating the profile...",
+      "successInfo": "Profile updated successfully",
+      "failedInfo": "profile updated failed"
+    },
+    "changePassword": {
+      "name": "Change Password",
+      "desc": "Enter your new password below to change/update your password.",
+      "password": "password",
+      "loading1": "Changing password...",
+      "loading2": "Change Password",
+      "passwordDesc": "At least 8 characters.",
+      "confirmPassword": "confirmPassword",
+      "confirmPasswordDesc": "Re-enter your new password to confirm.",
+      "info": "Make sure to remember your new password or store it securely.",
+      "passwordMessage": "Password must be at least 8 characters long.",
+      "passwordConfirmPassword": "Confirm password is required!",
+      "passwordRefine": "Password don't match",
+      "infoLoading": "Signing in...",
+      "infoSuccess": "Password is successfully updated"
+    },
+    "securitySetting": {
+      "name": "Security",
+      "password": "Password",
+      "desc": "Change your password to keep your account secure",
+      "button": "Change password",
+      "infoLoading": "Sending password reset email...",
+      "infoSuccess": "Password reset email sent! Please check your email for instructions",
+      "infoError": "There is an error sending the password reset email"
+    }
+  },
+  "billing": {
+    "title": "Plans & Billing",
+    "desc": "Manage your subscription and billing information.",
+    "planSummarry": {
+      "name": "Plan Summary",
+      "name1": "Price/Month",
+      "name2": "Included Credits",
+      "name3": "Renewal Date",
+      "noPlan": "No Plan",
+      "plan": "Plan",
+      "noInfo1": "Image Generation credits left",
+      "noInfo2": "0 rmmaining",
+      "noInfo3": "model training credits left",
+      "noInfo4": "Please upgrade to a plan to continue using the app.",
+      "info1": "Image Generation credits",
+      "info2": "model training credits"
+    },
+    "pricingSheet": {
+      "name": "upgrade",
+      "title": "Change subscription plan",
+      "desc": "choose a plan that fits your needs and budget to continue using our service."
+    },
+    "price": {
+      "btn1": "Manage Subscription",
+      "btn2": "Switch Plan",
+      "btn3": "Subscribe",
+      "infoError1": "An unkniw error occurred",
+      "infoError2": "Please try again laterr or contanct us.",
+      "info1": "Rediecting to stripe portal...",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "selected": "Selected",
+      "mostPopular": "Most Popular"
+    }
+  },
+  "gallery": {
+    "title": "My Images",
+    "desc": "Here you can see all the images you have generated .Click on an image to view details",
+    "emptyJobs": "No generated images yet.",
+    "viewLarge": "View full size",
+    "noPrompt": "—",
+    "download": "Download",
+    "copyPrompt": "Copy prompt",
+    "copiedPrompt": "Prompt copied",
+    "copyFailed": "Copy failed",
+    "promptLabel": "Prompt",
+    "deleteImage": "Delete image"
+  },
+  "model": {
+    "title": "My Models",
+    "desc": "View and manage your trained models"
+  },
+  "inspiration": {
+    "title": "Inspiration",
+    "desc": "Filter by category or search title / prompt, then save to your preset library.",
+    "likesSuffix": " saves",
+    "collect": "Save to presets",
+    "collecting": "Saving…",
+    "collectSuccess": "Added to your preset library",
+    "alreadyCollected": "You already saved this inspiration.",
+    "collectFailed": "Could not save. Try again.",
+    "empty": "No public inspiration yet.",
+    "emptyFiltered": "No matches for these filters. Try different keywords.",
+    "noCover": "No preview",
+    "searchPlaceholder": "Search title or prompt…",
+    "primaryLabel": "Category",
+    "secondaryLabel": "Subcategory",
+    "allPrimary": "All",
+    "allSecondary": "All",
+    "openPreview": "View full image",
+    "lightboxTitle": "Preview"
+  },
+  "imageGeneration": {
+    "settings": {
+      "name": "Scenario presets",
+      "presetPicker": "Preset",
+      "presetPickerInfo": "Pick a bundle you saved in Preset library; the form fills with those settings and you can edit before generating.",
+      "presetPlaceholder": "Choose a preset",
+      "presetNone": "None (custom)",
+      "fieldModel": "Model",
+      "prompt": "Prompt",
+      "fieldSize": "Aspect ratio",
+      "fieldResolution": "Resolution",
+      "fieldRefImages": "Reference images",
+      "fieldRefImagesHint": "Paste image URLs, one per line, or upload images below.",
+      "fieldRefImagesPlaceholder": "https://…",
+      "pickRefImages": "Upload images",
+      "removePendingRef": "Remove",
+      "uploadRefsFailed": "Reference image upload failed",
+      "refLimitToast": "At most 16 reference images (lines plus uploads)",
+      "generate": "Generate"
+    },
+    "formSchema": {
+      "preset": "Please choose a scenario preset or None",
+      "promptEmpty": "Please enter a prompt",
+      "size": "Please choose an aspect ratio",
+      "resolution": "Please choose a resolution",
+      "imageUrlsMax": "At most 16 reference image entries",
+      "resolution4kSize": "This aspect ratio does not support 4K; use 1k/2k or pick a 4K-supported ratio"
+    },
+    "generatedImages": {
+      "name": "No images generated",
+      "alt": "Generated image preview",
+      "viewFull": "View full size",
+      "fullTitle": "Full size image",
+      "noPrompt": "—",
+      "copyPrompt": "Copy prompt",
+      "copiedPrompt": "Prompt copied"
+    }
+  }
+}

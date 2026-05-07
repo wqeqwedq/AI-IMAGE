@@ -1,0 +1,8 @@
+# Minimal config for CLI deploys. See https://supabase.com/docs/guides/cli/config
+project_id = "saqmdjmtmzcenikjcofh"
+
+[functions.create-generation-job]
+verify_jwt = true
+
+[functions.poll-apimart-jobs]
+verify_jwt = false

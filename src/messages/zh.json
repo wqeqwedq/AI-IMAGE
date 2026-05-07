@@ -1,0 +1,384 @@
+{
+  "LocaleSwitcher": {
+    "zh": "中文",
+    "en": "英文",
+    "label": "语言"
+  },
+  "themeConfig": {
+    "light": "浅色",
+    "dark": "深色",
+    "system": "系统"
+  },
+
+  "app": {
+    "name": "AI Image",
+    "textPro": "专业版"
+  },
+  "announcement": {
+    "acknowledge": "我知道了",
+    "saveReadError": "暂时无法记录已读，请稍后重试。",
+    "openHistoryAria": "查看历史公告",
+    "historyTitle": "历史公告",
+    "historySubtitle": "已发布且已开始的公告（含已结束），点击标题展开正文。",
+    "historyLoading": "加载中…",
+    "historyEmpty": "暂无历史公告。",
+    "statusActive": "进行中",
+    "statusEnded": "已结束"
+  },
+  "helpFeedback": {
+    "pageTitle": "帮助与反馈",
+    "formTitle": "提交反馈",
+    "label": "反馈内容",
+    "placeholder": "例如：某功能无法使用、希望增加某某能力、文案不清楚……",
+    "submit": "提交",
+    "submitting": "提交中…",
+    "success": "已提交，感谢您的反馈！",
+    "errorEmpty": "请填写反馈内容。",
+    "errorTooLong": "内容过长，请删减后再提交。",
+    "errorUnauthorized": "请先登录。",
+    "errorGeneric": "提交失败，请稍后重试。"
+  },
+  "login": {
+    "google": "Google登录",
+    "github": "Github登录",
+    "loginForm": {
+      "name": "登录",
+      "title1": "在下方输入您的邮箱以登录您的账户",
+      "email": "邮箱",
+      "password": "密码",
+      "passwordInfo": "请输入您的密码",
+      "btn": "提交",
+      "btn1": "需要账户？注册",
+      "btn2": "忘记密码？",
+      "info1": "正在登录...",
+      "info2": "登录成功！",
+      "emailMessage": "请输入有效的邮箱地址！",
+      "passwordMessage": "密码长度必须至少为 8 个字符。",
+      "emailNotConfirmed": "该邮箱尚未完成验证。请打开注册时收到的邮件，点击其中的验证链接后再登录；如未收到邮件，请检查垃圾箱或稍后在 Supabase 中重发。"
+    },
+    "signUpForm": {
+      "name": "注册",
+      "title1": "在下方输入您的信息以创建账户",
+      "email": "邮箱",
+      "password": "密码",
+      "fullNameMessage": "您的姓名长度必须至少为 3 个字符。",
+      "emailMessage": "请输入有效的邮箱地址！",
+      "passwordString": "密码是必填项！",
+      "passwordMin": "密码长度须至少为 8 个字符。",
+      "confirmPasswordInfo": "确认密码是必填项！",
+      "passwordRefine": "密码不匹配",
+      "info1": "正在注册...",
+      "info2": "注册成功！",
+      "infoVerifyEmailTitle": "注册成功，请验证邮箱",
+      "infoVerifyEmailDesc": "我们已向您的邮箱发送验证链接。请点击邮件中的链接完成验证后再登录本应用；未完成验证前无法登录。",
+      "fullName": "姓名",
+      "fullNameInfo": "请输入您的姓名",
+      "passwordInfo": "请输入您的密码",
+      "confirmPassword": "确认密码",
+      "confirmPasswordEnter": "请确认您的密码",
+      "btn1": "注册",
+      "btn2": "已有账户？登录",
+      "btn3": "点击注册即表示您同意我们的",
+      "btn4": "服务条款",
+      "btn5": "和",
+      "btn6": "隐私政策。"
+    },
+    "resetPassword": {
+      "name": "重置密码",
+      "title1": "在下方输入您的邮箱以重置密码",
+      "email": "邮箱",
+      "emailMessage": "请输入有效的邮箱地址！",
+      "passwordMessage": "密码长度必须至少为 8 个字符。",
+      "password": "密码",
+      "infoLoading": "正在发送密码重置邮件...",
+      "infoSuccess": "密码重置邮件已发送！请查看您的邮箱以获取说明",
+      "infoError": "发送密码重置邮件时出错",
+      "btn1": "重置密码",
+      "btn2": "返回登录"
+    }
+  },
+  "sidebar": {
+    "name": "平台",
+    "upgrade": "升级",
+    "settings": "设置",
+    "billing": "账单"
+  },
+  "home": {
+    "navigtion": {
+      "name": "仪表盘",
+      "features": "功能",
+      "pricing": "定价",
+      "faqs": "常见问题",
+      "aboutMe": "关于我",
+      "github": "Github",
+      "signin": "登录",
+      "signup": "注册"
+    },
+    "faqs": {
+      "name": "常见问题",
+      "title": "常见问题解答",
+      "text": "以下是一些关于我们产品的最常见问题。"
+    },
+    "features": {
+      "name": "功能",
+      "title": "用 AI Image 解锁无限可能",
+      "text": "我们提供了多种功能，旨在提升您的图像创作体验。从易于使用的编辑工具到强大的 AI 驱动的图像生成，我们拥有将您的想法变为现实所需的一切。"
+    },
+    "hero": {
+      "title1": "尝试新的 Flux 模型",
+      "title2": "利用 AI 的力量改造您的照片",
+      "title3": "从头像到网红照片，AI Image的尖端技术确保您始终展现最佳状态。轻松创建、编辑和生成图像。",
+      "title4": "深受 1000+ 客户喜爱",
+      "title5": "创建您的第一个 AI Image"
+    },
+    "price": {
+      "name": "价格",
+      "title1": "选择适合您需求的计划",
+      "title2": "选择一个价格合理的计划，其中包含吸引受众、建立客户忠诚度和推动销售的最佳功能。",
+      "title3": "月度",
+      "title4": "年度",
+      "title5": "最受欢迎",
+      "title6": "订阅",
+      "title7": "包含内容",
+      "emptyPlans": "价格方案尚未配置，请稍后再试或登录控制台使用。"
+    },
+    "footer": {
+      "title1": "Image AI 公司。保留所有权利。",
+      "title2": "服务条款",
+      "title3": "隐私政策"
+    },
+    "review": {
+      "title1": "用户评价",
+      "title2": "我们的用户怎么说",
+      "title3": "了解为什么成千上万的人选择 AI Image，轻松生成高质量的照片，从头像到充满活力的社交媒体内容。"
+    },
+    "ready": {
+      "title1": "准备好改造您的照片了吗？",
+      "title2": "加入成千上万已经在创建令人惊叹的 AI 生成图像的用户。",
+      "title3": "创建您的第一个 AI 模型"
+    }
+  },
+  "dashboard": {
+    "title": "欢迎回来",
+    "statsCards": {
+      "name1": "总生成图片数",
+      "info1": "截至目前生成的图片数量",
+      "name2": "总模型数",
+      "info2": "已训练的自定义模型数量",
+      "name3": "图片生成积分",
+      "info3": "可用的图片生成积分",
+      "name4": "训练积分",
+      "info4": "可用的训练积分"
+    },
+    "recentImage": {
+      "title": "最近生成的图片",
+      "info": "尚未生成任何图片！",
+      "name": "查看图库"
+    },
+    "recentModels": {
+      "title": "最近的模型",
+      "desc": "从常见操作开始",
+      "info": "尚未训练任何模型"
+    },
+    "quickAction": {
+      "title": "快速操作",
+      "desc": "从常见操作开始",
+      "name1": "生成图片",
+      "name2": "灵感库",
+      "name3": "账单"
+    }
+  },
+  "modelTraining": {
+    "title": "灵感库",
+    "desc": "保存常用风格与生成设置，下次创作时可直接复用。\n上传参考图后，AI 会基于图片风格继续生成。\n支持添加图片链接或本地上传，最多 16 张参考图。",
+    "presetsStudio": {
+      "myPresets": "我的灵感",
+      "loadedPreset": "已加载预设：{title}",
+      "noUserPresets": "暂无保存的方案，在右侧填写后保存即可。",
+      "formTitle": "生成设置",
+      "formDesc": "",
+      "fieldModel": "模型",
+      "fieldModelPlaceholder": "选择模型",
+      "fieldPrompt": "提示词（必填）",
+      "fieldSize": "画面比例",
+      "fieldResolution": "清晰度（1k / 2k / 4k）",
+      "selectSize": "选择比例",
+      "selectResolution": "选择分辨率",
+      "fieldImageUrls": "参考图链接（可选）",
+      "fieldImageUrlsPlaceholder": "图片链接，一行一个（可选）",
+      "fieldImageUrlsHint": "",
+      "fieldLocalRefs": "本地上传参考图",
+      "pickLocalFiles": "选择本地图片",
+      "removePendingFile": "移除",
+      "pendingFilesHint": "",
+      "uploadRefsFailed": "参考图上传失败",
+      "refLimitExceeded": "参考图超过 16 条上限（URL 与上传合计），请删减后再保存。",
+      "presetNameLabel": "预设名称",
+      "presetNamePlaceholder": "例如：商品白底图 - 默认",
+      "saveCreate": "保存为我的预设",
+      "saveUpdate": "更新此预设",
+      "titleRequired": "请填写预设名称",
+      "promptRequired": "请填写 prompt",
+      "saveFailed": "保存失败",
+      "createdPreset": "已保存到我的预设",
+      "updatedPreset": "已更新预设",
+      "deletePreset": "删除预设",
+      "confirmDeleteTitle": "删除该预设？",
+      "confirmDeleteDesc": "确定删除「{title}」吗？此操作不可撤销。",
+      "cancel": "取消",
+      "delete": "删除",
+      "deleteFailed": "删除失败",
+      "deletedPreset": "已删除"
+    }
+  },
+  "account": {
+    "title": "账户设置",
+    "desc": "管理您的账户设置和偏好。",
+    "accountForm": {
+      "name": "个人资料",
+      "desc": "更新您的个人信息",
+      "fullName": "姓名",
+      "email": "邮箱",
+      "emailDesc": "您的邮箱地址用于登录和沟通。",
+      "button": "更新资料",
+      "infoLoading": "正在更新资料...",
+      "successInfo": "资料更新成功",
+      "failedInfo": "资料更新失败"
+    },
+    "changePassword": {
+      "name": "修改密码",
+      "desc": "在下方输入您的新密码以更改/更新密码。",
+      "password": "密码",
+      "loading1": "正在修改密码...",
+      "loading2": "修改密码",
+      "passwordDesc": "密码至少 8 个字符。",
+      "confirmPassword": "确认密码",
+      "confirmPasswordDesc": "请重新输入您的新密码以确认。",
+      "info": "请确保记住您的新密码或将其安全保存。",
+      "passwordMessage": "密码长度须至少为 8 个字符。",
+      "passwordConfirmPassword": "确认密码是必填项！",
+      "passwordRefine": "密码不匹配",
+      "infoLoading": "正在登录...",
+      "infoSuccess": "密码已成功更新"
+    },
+    "securitySetting": {
+      "name": "安全设置",
+      "password": "密码",
+      "desc": "更改密码以确保您的账户安全",
+      "button": "修改密码",
+      "infoLoading": "正在发送密码重置邮件...",
+      "infoSuccess": "密码重置邮件已发送！请查看您的邮箱以获取说明",
+      "infoError": "发送密码重置邮件时出错"
+    }
+  },
+  "billing": {
+    "title": "计划与账单",
+    "desc": "管理您的订阅和账单信息。",
+    "planSummarry": {
+      "name": "计划概览",
+      "name1": "价格/月",
+      "name2": "包含的积分",
+      "name3": "续订日期",
+      "noPlan": "无计划",
+      "plan": "计划",
+      "noInfo1": "剩余图像生成积分",
+      "noInfo2": "剩余 0",
+      "noInfo3": "剩余模型训练积分",
+      "noInfo4": "请升级计划以继续使用该应用。",
+      "info1": "图像生成积分",
+      "info2": "模型训练积分"
+    },
+    "pricingSheet": {
+      "name": "升级",
+      "title": "更改订阅计划",
+      "desc": "选择一个适合您需求和预算的计划，以继续使用我们的服务。"
+    },
+    "price": {
+      "btn1": "管理订阅",
+      "btn2": "切换计划",
+      "btn3": "订阅",
+      "infoError1": "发生未知错误",
+      "infoError2": "请稍后重试或联系我们。",
+      "info1": "正在跳转到 Stripe 门户...",
+      "monthly": "月度",
+      "yearly": "年度",
+      "selected": "已选择",
+      "mostPopular": "最受欢迎"
+    }
+  },
+  "gallery": {
+    "title": "我的图像",
+    "desc": "在这里，您可以查看所有生成的图像。点击图像以查看详细信息。",
+    "emptyJobs": "暂无生成记录。",
+    "viewLarge": "查看大图",
+    "noPrompt": "—",
+    "download": "下载",
+    "copyPrompt": "复制提示词",
+    "copiedPrompt": "已复制提示词",
+    "copyFailed": "复制失败",
+    "promptLabel": "提示词",
+    "deleteImage": "删除图片"
+  },
+  "model": {
+    "title": "我的模型",
+    "desc": "查看和管理您训练好的模型"
+  },
+  "inspiration": {
+    "title": "灵感来源",
+    "desc": "按分类浏览或搜索标题 / 提示词，收藏后加入「灵感库」。",
+    "likesSuffix": "收藏",
+    "collect": "收藏到预设",
+    "collecting": "正在收藏…",
+    "collectSuccess": "已加入「灵感库」",
+    "alreadyCollected": "该灵感已在您的预设中",
+    "collectFailed": "收藏失败，请重试",
+    "empty": "暂无公开灵感，请稍后再来。",
+    "emptyFiltered": "没有符合当前分类或搜索条件的灵感，试试其它关键词。",
+    "noCover": "无预览图",
+    "searchPlaceholder": "搜索标题或提示词…",
+    "primaryLabel": "一级分类",
+    "secondaryLabel": "二级分类",
+    "allPrimary": "全部分类",
+    "allSecondary": "全部",
+    "openPreview": "查看大图",
+    "lightboxTitle": "预览图"
+  },
+  "imageGeneration": {
+    "settings": {
+      "name": "场景预设",
+      "presetPicker": "选择预设",
+      "presetPickerInfo": "选择您在「灵感库」中保存的方案，表单会填入对应参数；仍可在生成前修改。",
+      "presetPlaceholder": "选择预设",
+      "presetNone": "无（自定义）",
+      "fieldModel": "模型",
+      "prompt": "提示词",
+      "fieldSize": "宽高比",
+      "fieldResolution": "分辨率",
+      "fieldRefImages": "参考图",
+      "fieldRefImagesHint": "可粘贴图片 URL，一行一个；或点击下方上传图片。",
+      "fieldRefImagesPlaceholder": "https://…",
+      "pickRefImages": "上传图片",
+      "removePendingRef": "移除",
+      "uploadRefsFailed": "参考图上传失败",
+      "refLimitToast": "参考图最多 16 条（文本行与上传合计）",
+      "generate": "生成图片"
+    },
+    "formSchema": {
+      "preset": "请选择场景预设或「无」",
+      "promptEmpty": "请填写提示词",
+      "size": "请选择宽高比",
+      "resolution": "请选择分辨率",
+      "imageUrlsMax": "参考图最多 16 条",
+      "resolution4kSize": "当前比例不支持 4K，请改为 1k/2k 或更换为支持 4K 的比例"
+    },
+    "generatedImages": {
+      "name": "没有图片生成",
+      "alt": "生成图预览",
+      "viewFull": "查看大图",
+      "fullTitle": "大图预览",
+      "noPrompt": "—",
+      "copyPrompt": "复制提示词",
+      "copiedPrompt": "已复制提示词"
+    }
+  }
+}
