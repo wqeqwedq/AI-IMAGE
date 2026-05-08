@@ -1,7 +1,6 @@
 "use client";
 
 import type { Tables } from "@datatypes.types";
-import Image from "next/image";
 import React, { useId, useTransition } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
@@ -96,16 +95,16 @@ export default function InspirationGrid({
           <DialogTitle className="sr-only">{t("lightboxTitle")}</DialogTitle>
           {lightboxUrl ? (
             <div
-              className="relative mx-auto h-[min(85vh,900px)] w-full min-w-[min(90vw,320px)]"
+              className="relative mx-auto flex h-[min(85vh,900px)] w-full min-w-[min(90vw,320px)] items-center justify-center"
               onPointerDown={(e) => e.stopPropagation()}
             >
-              <Image
+              {/* 原生 img：cover_image 可为任意 HTTPS 域名，不经 next/image 白名单 */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={lightboxUrl}
                 alt=""
-                fill
-                className="object-contain"
-                sizes="(max-width: 1280px) 96vw, 1200px"
-                priority
+                className="max-h-full max-w-full object-contain"
+                decoding="async"
               />
             </div>
           ) : null}
@@ -126,12 +125,12 @@ export default function InspirationGrid({
                   aria-label={t("openPreview")}
                   onClick={() => setLightboxUrl(item.cover_image)}
                 >
-                  <Image
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
                     src={item.cover_image}
                     alt=""
-                    fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1536px) 50vw, 33vw"
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                    decoding="async"
                   />
                 </button>
               ) : (

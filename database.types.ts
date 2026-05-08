@@ -39,6 +39,84 @@ export type Database = {
                 }
                 Relationships: []
             }
+            ai_image_redeem_attempts: {
+                Row: {
+                    created_at: string
+                    id: number
+                    user_id: string
+                }
+                Insert: {
+                    created_at?: string
+                    id?: never
+                    user_id: string
+                }
+                Update: {
+                    created_at?: string
+                    id?: never
+                    user_id?: string
+                }
+                Relationships: []
+            }
+            ai_image_redeem_codes: {
+                Row: {
+                    code: string
+                    created_at: string
+                    expire_at: string | null
+                    id: string
+                    points: number
+                    status: string
+                    used_at: string | null
+                    used_by: string | null
+                }
+                Insert: {
+                    code: string
+                    created_at?: string
+                    expire_at?: string | null
+                    id?: string
+                    points: number
+                    status?: string
+                    used_at?: string | null
+                    used_by?: string | null
+                }
+                Update: {
+                    code?: string
+                    created_at?: string
+                    expire_at?: string | null
+                    id?: string
+                    points?: number
+                    status?: string
+                    used_at?: string | null
+                    used_by?: string | null
+                }
+                Relationships: []
+            }
+            ai_image_redeem_purchase_links: {
+                Row: {
+                    created_at: string
+                    id: string
+                    is_active: boolean
+                    label: string
+                    sort_order: number
+                    url: string
+                }
+                Insert: {
+                    created_at?: string
+                    id?: string
+                    is_active?: boolean
+                    label: string
+                    sort_order?: number
+                    url: string
+                }
+                Update: {
+                    created_at?: string
+                    id?: string
+                    is_active?: boolean
+                    label?: string
+                    sort_order?: number
+                    url?: string
+                }
+                Relationships: []
+            }
             ai_image_customers: {
                 Row: {
                     id: string
@@ -582,6 +660,12 @@ export type Database = {
                     p_user_id: string
                 }
                 Returns: string
+            }
+            redeem_ai_image_code: {
+                Args: {
+                    p_code: string
+                }
+                Returns: Json
             }
         }
         Enums: {

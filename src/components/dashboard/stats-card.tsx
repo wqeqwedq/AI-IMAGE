@@ -51,8 +51,7 @@ const StatsCards = ({ imageCount, modelCount, credits }: StatsCardsProps) => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {credits?.image_generation_count || 0}/
-            {credits?.max_image_generation_count || 0}
+            {credits?.image_generation_count ?? 0}
           </div>
           <p className="text-xs text-muted-foreground">
             {statsCardsT("info3")}

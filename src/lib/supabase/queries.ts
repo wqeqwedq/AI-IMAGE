@@ -83,6 +83,31 @@ export const getProducts = cache(
     }
 );
 
+export type RedeemPurchaseLinkRow = {
+    id: string;
+    label: string;
+    url: string;
+    sort_order: number;
+};
+
+export const getRedeemPurchaseLinks = cache(
+    async (supabase: SupabaseClient): Promise<RedeemPurchaseLinkRow[]> => {
+        const { data, error } = await supabase
+            .from('ai_image_redeem_purchase_links')
+            .select('id, label, url, sort_order')
+            .eq('is_active', true)
+            .order('sort_order', { ascending: true })
+            .order('id', { ascending: true });
+
+        if (error) {
+            console.error('[getRedeemPurchaseLinks]', error.message);
+            return [];
+        }
+
+        return (data ?? []) as RedeemPurchaseLinkRow[];
+    }
+);
+
 export const getUserDetails = cache(async (supabase: SupabaseClient) => {
     const { data: userDetails } = await supabase
         .from('ai_image_users')

@@ -27,6 +27,8 @@ export type ImageLightboxDialogProps = {
   footerExtra?: React.ReactNode;
   /** 无提示词时的占位 */
   emptyPromptLabel: string;
+  /** imageUrl 为空时展示（勿对原生 img 传 src=""） */
+  emptyImageLabel?: string;
 };
 
 export function ImageLightboxDialog({
@@ -39,8 +41,10 @@ export function ImageLightboxDialog({
   copiedToast,
   footerExtra,
   emptyPromptLabel,
+  emptyImageLabel = "No image URL",
 }: ImageLightboxDialogProps) {
   const displayPrompt = prompt.trim() ? prompt : emptyPromptLabel;
+  const safeImageSrc = imageUrl.trim();
 
   const copyPrompt = async () => {
     const text = prompt.trim();
@@ -69,13 +73,17 @@ export function ImageLightboxDialog({
 
         <div className="flex max-h-[min(92dvh,880px)] flex-col">
           <div className="flex min-h-0 flex-1 items-center justify-center bg-muted/30 p-2 sm:p-3">
-            {/* 原生 img：浏览器请求的就是 result_url，不会变成 /_next/image?... */}
-            <img
-              src={imageUrl}
-              alt=""
-              className="max-h-[min(72dvh,780px)] max-w-full object-contain"
-              decoding="async"
-            />
+            {safeImageSrc ? (
+              /* 原生 img：浏览器请求的就是 result_url，不会变成 /_next/image?... */
+              <img
+                src={safeImageSrc}
+                alt=""
+                className="max-h-[min(72dvh,780px)] max-w-full object-contain"
+                decoding="async"
+              />
+            ) : (
+              <p className="max-w-md text-center text-sm text-muted-foreground">{emptyImageLabel}</p>
+            )}
           </div>
 
           <div className="shrink-0 space-y-3 border-t bg-background px-4 py-3">

@@ -1,5 +1,11 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import type { User } from '@supabase/supabase-js'
 import { NextResponse, type NextRequest } from 'next/server'
+
+export type UpdateSessionResult = {
+    response: NextResponse
+    user: User | null
+}
 
 /** Edge Middleware cannot read non-NEXT_PUBLIC env vars from .env; use public fallbacks. */
 function supabaseEnv() {
@@ -8,17 +14,24 @@ function supabaseEnv() {
     return { url, anonKey }
 }
 
-export async function updateSession(request: NextRequest) {
+export async function updateSession(request: NextRequest): Promise<UpdateSessionResult> {
     let supabaseResponse = NextResponse.next({
         request,
     })
 
     const { url, anonKey } = supabaseEnv()
 
-    const supabase = createServerClient(
-        url!,
-        anonKey!,
-        {
+    if (!url?.trim() || !anonKey?.trim()) {
+        console.error(
+            '[middleware] Missing Supabase URL or anon key. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY on Vercel (and SUPABASE_* if used).'
+        )
+        return { response: supabaseResponse, user: null }
+    }
+
+    let user: User | null = null
+
+    try {
+        const supabase = createServerClient(url, anonKey, {
             cookies: {
                 getAll() {
                     return request.cookies.getAll()
@@ -33,46 +46,17 @@ export async function updateSession(request: NextRequest) {
                     )
                 },
             },
-        }
-    )
+        })
 
-    // Do not run code between createServerClient and
-    // supabase.auth.getUser(). A simple mistake could make it very hard to debug
-    // issues with users being randomly logged out.
-
-    // IMPORTANT: DO NOT REMOVE auth.getUser()
-
-    const {
-        data: { user },
-    } = await supabase.auth.getUser()
-
-    if (
-        !user &&
-        !request.nextUrl.pathname.startsWith('/login') &&
-        !request.nextUrl.pathname.startsWith('/auth') &&
-        !request.nextUrl.pathname.startsWith('/reset-password') &&
-        !request.nextUrl.pathname.startsWith('/account-reset-password') &&
-        !request.nextUrl.pathname.startsWith('/signup') &&
-        !(request.nextUrl.pathname === "/")
-    ) {
-        // no user, potentially respond by redirecting the user to the login page
-        const url = request.nextUrl.clone()
-        url.pathname = '/login'
-        return NextResponse.redirect(url)
+        const {
+            data: { user: u },
+        } = await supabase.auth.getUser()
+        user = u
+    } catch (err) {
+        console.error('[middleware] Supabase session error:', err)
+        const fallback = NextResponse.next({ request })
+        return { response: fallback, user: null }
     }
 
-    // IMPORTANT: You *must* return the supabaseResponse object as it is.
-    // If you're creating a new response object with NextResponse.next() make sure to:
-    // 1. Pass the request in it, like so:
-    //    const myNewResponse = NextResponse.next({ request })
-    // 2. Copy over the cookies, like so:
-    //    myNewResponse.cookies.setAll(supabaseResponse.cookies.getAll())
-    // 3. Change the myNewResponse object to fit your needs, but avoid changing
-    //    the cookies!
-    // 4. Finally:
-    //    return myNewResponse
-    // If this is not done, you may be causing the browser and server to go out
-    // of sync and terminate the user's session prematurely!
-
-    return supabaseResponse
+    return { response: supabaseResponse, user }
 }

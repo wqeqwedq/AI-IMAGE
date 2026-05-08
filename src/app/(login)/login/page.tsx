@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import LoginForm from "@/components/login/login-form";
 import LoginImage from "@/components/login/login-image";
 import { createServer } from "@/lib/supabase/server";
@@ -17,7 +17,9 @@ const LoginPage = async () => {
       <LoginImage />
       <div className="relative flex flex-col items-center justify-center p-8 h-full w-full">
         <div className=" w-full md:w-[400px] mx-auto">
-          <LoginForm />
+          <Suspense fallback={<div className="text-center text-sm text-muted-foreground py-8">…</div>}>
+            <LoginForm />
+          </Suspense>
         </div>
       </div>
     </main>

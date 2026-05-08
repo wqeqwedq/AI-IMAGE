@@ -1,18 +1,25 @@
 import { getCreditsAction } from "@/app/actions/credits-action";
 import PlanSummarry from "@/components/billing/plan-summary";
+import { RedeemCodeCard } from "@/components/billing/redeem-code-card";
 import Pricing from "@/components/billing/pricing";
 import Title from "@/components/billing/title";
-import { getProducts, getSubscription, getUser } from "@/lib/supabase/queries";
+import {
+  getProducts,
+  getRedeemPurchaseLinks,
+  getSubscription,
+  getUser,
+} from "@/lib/supabase/queries";
 import { createServer } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import React from "react";
 
 const BillingPage = async () => {
   const supabase = await createServer();
-  const [user, products, subscription] = await Promise.all([
+  const [user, products, subscription, redeemPurchaseLinks] = await Promise.all([
     getUser(supabase),
     getProducts(supabase),
     getSubscription(supabase),
+    getRedeemPurchaseLinks(supabase),
   ]);
   if (!user) {
     return redirect("/login");
@@ -22,6 +29,7 @@ const BillingPage = async () => {
     <section className="container mx-auto">
       <Title />
       <div className="grid gap-10">
+        <RedeemCodeCard purchaseLinks={redeemPurchaseLinks} />
         <PlanSummarry
           credits={credits}
           subscription={subscription}

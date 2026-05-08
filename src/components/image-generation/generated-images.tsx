@@ -40,13 +40,16 @@ const GeneratedImages = () => {
             <CarouselItem key={index} className="pl-2 md:pl-4">
               <button
                 type="button"
-                className="group flex w-full cursor-zoom-in flex-col items-center justify-center overflow-hidden rounded-lg border border-border/60 bg-muted/20 outline-none ring-offset-background transition-colors hover:bg-muted/35 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                onClick={() =>
+                disabled={!(image.url ?? "").trim()}
+                className="group flex w-full flex-col items-center justify-center overflow-hidden rounded-lg border border-border/60 bg-muted/20 outline-none ring-offset-background transition-colors hover:bg-muted/35 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 enabled:cursor-zoom-in"
+                onClick={() => {
+                  const url = (image.url ?? "").trim();
+                  if (!url) return;
                   setLightbox({
-                    url: image.url,
+                    url,
                     prompt: image.prompt ?? "",
-                  })
-                }
+                  });
+                }}
                 aria-label={t("generatedImages.viewFull")}
               >
                 <div className="relative mx-auto aspect-square w-full max-w-[min(100%,min(85vh,80rem))]">
@@ -80,6 +83,7 @@ const GeneratedImages = () => {
         copyLabel={t("generatedImages.copyPrompt")}
         copiedToast={t("generatedImages.copiedPrompt")}
         emptyPromptLabel={t("generatedImages.noPrompt")}
+        emptyImageLabel={t("generatedImages.noImage")}
       />
     </>
   );

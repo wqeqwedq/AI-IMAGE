@@ -1,5 +1,7 @@
 "use client";
 import React, { useId, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { safeInternalPath } from "@/lib/admin/safe-internal-path";
 import {
   Form,
   FormControl,
@@ -24,6 +26,8 @@ import { GoogleSignin } from "./google-signin";
 import { GithubSignin } from "./github-signin";
 
 export const LoginForm = () => {
+  const searchParams = useSearchParams();
+  const nextAfterLogin = searchParams.get("next");
   const [loading, setLoading] = useState(false);
   const toastId = useId();
   const loginFormT = useTranslations("login.loginForm");
@@ -61,7 +65,7 @@ export const LoginForm = () => {
       }
     } else {
       toast.success(loginFormT("info2"), { id: toastId });
-      redirect("/dashboard");
+      redirect(safeInternalPath(nextAfterLogin));
     }
     setLoading(false);
   };

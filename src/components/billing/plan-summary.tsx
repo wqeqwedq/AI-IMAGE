@@ -136,10 +136,9 @@ const PlanSummarry = ({
                 {priceString}
               </div>
             </div>
-            <div className="flex flex-col pb-0">
-              <div className="text-sm font-normal">{T("name2")}</div>
-              <div className="flex-1 pt-1 text-sm font-medium">
-                {maxImageGenerationCount}
+            <div className="flex flex-col pb-0 justify-center">
+              <div className="text-sm font-medium text-muted-foreground">
+                {T("creditsHint")}
               </div>
             </div>
             <div className="flex flex-col pb-0">

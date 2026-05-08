@@ -9,8 +9,24 @@ import Testimonials from "@/components/landing-page/testimonials";
 import { getProducts, getUser } from "@/lib/supabase/queries";
 import { createServer } from "@/lib/supabase/server";
 import Ready from "@/components/landing-page/ready";
+import { redirect } from "next/navigation";
 
-export default async function HomePage() {
+type HomeSearchParams = { code?: string | string[]; next?: string | string[] };
+
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<HomeSearchParams>;
+}) {
+  const sp = await searchParams;
+  const code = typeof sp.code === "string" ? sp.code : sp.code?.[0];
+  if (code) {
+    const nextVal = typeof sp.next === "string" ? sp.next : sp.next?.[0];
+    const qs = new URLSearchParams({ code });
+    if (nextVal) qs.set("next", nextVal);
+    redirect(`/auth/callback?${qs.toString()}`);
+  }
+
   const supabase = await createServer();
   const [user, products] = await Promise.all([
     getUser(supabase),

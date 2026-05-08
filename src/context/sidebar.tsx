@@ -37,7 +37,7 @@ export const navList = {
       icon: Images,
     },
     {
-      title: "Billing",
+      title: "Recharge",
       url: "/billing",
       icon: CreditCard,
     },
@@ -80,7 +80,7 @@ export const navList = {
       icon: Images,
     },
     {
-      title: "账单",
+      title: "充值",
       url: "/billing",
       icon: CreditCard,
     },
