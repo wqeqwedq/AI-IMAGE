@@ -82,7 +82,12 @@ export function AnnouncementGate() {
       announcement_id: announcement.id,
     });
 
-    if (error && error.code !== "23505") {
+    const msg = (error?.message ?? "").toLowerCase();
+    const duplicateRead =
+      error?.code === "23505" ||
+      msg.includes("duplicate") ||
+      msg.includes("unique constraint");
+    if (error && !duplicateRead) {
       toast.error(t("saveReadError"));
       return;
     }
@@ -97,6 +102,7 @@ export function AnnouncementGate() {
     <Dialog open={open} onOpenChange={() => {}}>
       <DialogContent
         hideClose
+        aria-describedby={undefined}
         className="max-h-[90vh] max-w-lg overflow-hidden sm:max-w-lg"
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}

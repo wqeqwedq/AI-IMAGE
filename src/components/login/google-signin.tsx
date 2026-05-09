@@ -2,8 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { signinWithGoogle } from "@/app/actions/auth-actions";
+import { signInWithOAuthProvider } from "@/lib/supabase/oauth-client";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 export const GoogleSignin = () => {
   const loginT = useTranslations("login");
@@ -11,8 +12,15 @@ export const GoogleSignin = () => {
     <Button
       type="button"
       variant="outline"
-      onClick={signinWithGoogle}
       className="w-full"
+      onClick={async () => {
+        const { url, error } = await signInWithOAuthProvider("google");
+        if (url) {
+          window.location.assign(url);
+          return;
+        }
+        if (error) toast.error(error);
+      }}
     >
       <Image
         src="https://authjs.dev/img/providers/google.svg"

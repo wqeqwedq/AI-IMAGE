@@ -1,23 +1,7 @@
 "use server"
 
 import { createServer } from "@/lib/supabase/server";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-
-/** OAuth redirect_to：优先用当前请求的 Host（避免 .env 写 3000 却在 3001 跑导致 Supabase 回退到 Site URL 把 code 丢到 /?code=） */
-async function oauthRedirectOrigin(): Promise<string> {
-    const h = await headers();
-    const forwardedHost = h.get("x-forwarded-host");
-    const host = (forwardedHost ?? h.get("host") ?? "").split(",")[0]?.trim();
-    if (host) {
-        const proto =
-            h.get("x-forwarded-proto")?.split(",")[0]?.trim() ??
-            (host.startsWith("localhost") || host.startsWith("127.") ? "http" : "https");
-        return `${proto}://${host}`;
-    }
-    const env = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "").trim();
-    return env && env.length > 0 ? env : "http://localhost:3000";
-}
 
 export interface AuthResponse {
     error: null | string;
@@ -144,24 +128,3 @@ export const changePasswordAction = async (newPassword: string): Promise<AuthRes
 
 }
 
-
-const signInWith = (provider: any) => async () => {
-    const supabase = await createServer()
-    const origin = await oauthRedirectOrigin()
-    const auth_callback_url = `${origin}/auth/callback`
-    const { data, error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-            redirectTo: auth_callback_url,
-        },
-    })
-    console.log(data)
-
-    if (error) {
-        console.log(error)
-    }
-    redirect(data.url || "")
-}
-
-export const signinWithGoogle = signInWith('google')
-export const signinWithGithub = signInWith('github')

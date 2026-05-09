@@ -2,8 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { signinWithGithub } from "@/app/actions/auth-actions";
+import { signInWithOAuthProvider } from "@/lib/supabase/oauth-client";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 export const GithubSignin = () => {
   const loginT = useTranslations("login");
@@ -11,8 +12,15 @@ export const GithubSignin = () => {
     <Button
       type="button"
       variant="outline"
-      onClick={signinWithGithub}
       className="w-full"
+      onClick={async () => {
+        const { url, error } = await signInWithOAuthProvider("github");
+        if (url) {
+          window.location.assign(url);
+          return;
+        }
+        if (error) toast.error(error);
+      }}
     >
       <Image
         src="https://authjs.dev/img/providers/github.svg"
