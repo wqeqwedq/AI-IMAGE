@@ -28,8 +28,6 @@ export async function adminUpdateUserCreditsAction(input: {
     userId: string;
     image_generation_count: number;
     max_image_generation_count: number;
-    model_training_count: number;
-    max_model_training_count: number;
 }): Promise<{ ok: true } | { ok: false; error: string }> {
     try {
         await updateUserCredits(input);

@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { CreditCardIcon, PlusIcon, Wand2Icon } from "lucide-react";
+import { GiftIcon, PlusIcon, Wand2Icon } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 const QuickAction = () => {
@@ -35,8 +35,8 @@ const QuickAction = () => {
           </Link>
         </Button>
         <Button asChild className="w-full" variant={"secondary"}>
-          <Link href={"/billing"}>
-            <CreditCardIcon className="w-4 h-4 mr-2" />
+          <Link href={"/redeem"}>
+            <GiftIcon className="w-4 h-4 mr-2" />
             {quickActionT("name3")}
           </Link>
         </Button>

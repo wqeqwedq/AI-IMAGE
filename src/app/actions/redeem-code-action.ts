@@ -30,7 +30,7 @@ export async function redeemCodeAction(rawCode: string): Promise<RedeemCodeResul
     }
 
     if (payload.ok === true && typeof payload.points === "number") {
-        revalidatePath("/billing");
+        revalidatePath("/redeem");
         revalidatePath("/dashboard");
         return { ok: true, points: payload.points };
     }

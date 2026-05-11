@@ -1,7 +1,11 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-const MAX_POLLS = 120;
+type PollingJob = {
+  id: string;
+  external_task_id: string;
+  poll_count: number;
+};
 
 function firstResultUrl(data: Record<string, unknown>): string | null {
   const result = data.result as Record<string, unknown> | undefined;
@@ -10,6 +14,54 @@ function firstResultUrl(data: Record<string, unknown>): string | null {
     | undefined;
   const u = images?.[0]?.url;
   return u?.[0] ?? null;
+}
+
+async function settleJob(
+  admin: ReturnType<typeof createClient>,
+  jobId: string,
+  success: boolean,
+  resultUrl: string | null
+): Promise<void> {
+  const { error } = await admin.rpc("ai_image_settle_generation_job", {
+    p_job_id: jobId,
+    p_success: success,
+    p_result_url: resultUrl ?? "",
+  });
+  if (error) {
+    console.error("ai_image_settle_generation_job", jobId, error);
+  }
+}
+
+/** 与 create-generation-job 一致：GET /tasks 的 data 多为单对象，兼容数组首项 */
+function getTaskRecord(
+  root: Record<string, unknown>
+): Record<string, unknown> | undefined {
+  const raw = root.data;
+  if (Array.isArray(raw)) {
+    const first = raw[0];
+    if (first && typeof first === "object" && !Array.isArray(first)) {
+      return first as Record<string, unknown>;
+    }
+    return undefined;
+  }
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+    return raw as Record<string, unknown>;
+  }
+  return undefined;
+}
+
+async function bumpJobPoll(
+  admin: ReturnType<typeof createClient>,
+  job: PollingJob,
+  now: string
+): Promise<void> {
+  await admin
+    .from("ai_image_generation_jobs")
+    .update({
+      poll_count: job.poll_count + 1,
+      last_polled_at: now,
+    })
+    .eq("id", job.id);
 }
 
 Deno.serve(async (req: Request) => {
@@ -45,8 +97,10 @@ Deno.serve(async (req: Request) => {
   const now = new Date().toISOString();
   let processed = 0;
 
-  for (const job of jobs ?? []) {
+  for (const raw of jobs ?? []) {
     processed++;
+    const job = raw as PollingJob;
+
     const taskUrl = `https://api.apimart.ai/v1/tasks/${encodeURIComponent(
       job.external_task_id
     )}?language=zh`;
@@ -56,107 +110,43 @@ Deno.serve(async (req: Request) => {
       const res = await fetch(taskUrl, {
         headers: { Authorization: `Bearer ${apimartKey}` },
       });
+
+      // 网络 / HTTP 异常不算「任务失败」：继续轮询直至 Apimart data.status 终态
+      if (!res.ok) {
+        console.warn("poll HTTP (retry)", job.id, res.status);
+        await bumpJobPoll(admin, job, now);
+        continue;
+      }
+
       json = await res.json();
     } catch (e) {
-      console.error("poll fetch", job.id, e);
-      await admin
-        .from("ai_image_generation_jobs")
-        .update({
-          poll_count: job.poll_count + 1,
-          last_polled_at: now,
-        })
-        .eq("id", job.id);
+      console.error("poll fetch/json", job.id, e);
+      await bumpJobPoll(admin, job, now);
       continue;
     }
 
     const root = json as Record<string, unknown>;
-    if (root.code !== 200) {
-      const nextCount = job.poll_count + 1;
-      if (nextCount > MAX_POLLS) {
-        await admin
-          .from("ai_image_generation_jobs")
-          .update({
-            status: "failed",
-            poll_count: nextCount,
-            last_polled_at: now,
-          })
-          .eq("id", job.id);
-      } else {
-        await admin
-          .from("ai_image_generation_jobs")
-          .update({
-            poll_count: nextCount,
-            last_polled_at: now,
-          })
-          .eq("id", job.id);
-      }
-      continue;
-    }
-
-    const d = root.data as Record<string, unknown> | undefined;
+    const d = getTaskRecord(root);
     if (!d) {
-      const nextCount = job.poll_count + 1;
-      if (nextCount > MAX_POLLS) {
-        await admin
-          .from("ai_image_generation_jobs")
-          .update({
-            status: "failed",
-            poll_count: nextCount,
-            last_polled_at: now,
-          })
-          .eq("id", job.id);
-      } else {
-        await admin
-          .from("ai_image_generation_jobs")
-          .update({
-            poll_count: nextCount,
-            last_polled_at: now,
-          })
-          .eq("id", job.id);
-      }
+      console.warn("poll no task record (retry)", job.id, root.code);
+      await bumpJobPoll(admin, job, now);
       continue;
     }
 
     const st = String(d.status ?? "");
-    const nextCount = job.poll_count + 1;
 
     if (st === "completed") {
       const url = firstResultUrl(d);
-      await admin
-        .from("ai_image_generation_jobs")
-        .update({
-          status: "succeeded",
-          result_url: url,
-          poll_count: nextCount,
-          last_polled_at: now,
-        })
-        .eq("id", job.id);
+      if (url) {
+        await settleJob(admin, job.id, true, url);
+      } else {
+        await settleJob(admin, job.id, false, null);
+      }
     } else if (st === "failed" || st === "cancelled") {
-      await admin
-        .from("ai_image_generation_jobs")
-        .update({
-          status: "failed",
-          poll_count: nextCount,
-          last_polled_at: now,
-        })
-        .eq("id", job.id);
-    } else if (nextCount > MAX_POLLS) {
-      await admin
-        .from("ai_image_generation_jobs")
-        .update({
-          status: "failed",
-          poll_count: nextCount,
-          last_polled_at: now,
-        })
-        .eq("id", job.id);
+      await settleJob(admin, job.id, false, null);
     } else {
-      await admin
-        .from("ai_image_generation_jobs")
-        .update({
-          poll_count: nextCount,
-          last_polled_at: now,
-        })
-        .eq("id", job.id);
+      // pending / processing / submitted 等：服务端未报任务失败，继续轮询
+      await bumpJobPoll(admin, job, now);
     }
   }
 

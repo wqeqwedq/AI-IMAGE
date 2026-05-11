@@ -35,7 +35,7 @@
       },
       "users": {
         "title": "Users",
-        "subtitle": "Search by full email, view image/training quota and consumed amounts, then edit credits in the database.",
+        "subtitle": "Search by full email, view image generation quota and consumed amounts, then edit credits in the database.",
         "placeholder": "Coming soon: credits and subscriptions."
       },
       "announcements": {
@@ -334,7 +334,7 @@
     "name": "Platform",
     "upgrade": "Upgrade",
     "settings": "Settings",
-    "billing": "Recharge"
+    "redeem": "Redeem code"
   },
   "home": {
     "navigtion": {
@@ -397,12 +397,12 @@
     "statsCards": {
       "name1": "Total Images",
       "info1": "Images generated so far",
-      "name2": "Total Models",
-      "info2": "Custom models trained",
-      "name3": "Remaining credits",
-      "info3": "Remaining uses for image generation",
-      "name4": "Training Credits",
-      "info4": "Available training credits"
+      "name2": "Remaining credits",
+      "info2": "Remaining uses for image generation"
+    },
+    "redeemPage": {
+      "title": "Redeem code",
+      "desc": "Enter a valid code to add image generation credits to your account."
     },
     "recentImage": {
       "title": "Recent Generations",
@@ -419,7 +419,7 @@
       "desc": "Get started with common actions",
       "name1": "Generate Image",
       "name2": "Preset library",
-      "name3": "Recharge"
+      "name3": "Redeem code"
     }
   },
   "modelTraining": {

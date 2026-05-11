@@ -12,6 +12,7 @@ export type Database = {
             ai_image_credits: {
                 Row: {
                     created_at: string
+                    credit_hold: number
                     id: number
                     image_generation_count: number | null
                     max_image_generation_count: number | null
@@ -21,6 +22,7 @@ export type Database = {
                 }
                 Insert: {
                     created_at?: string
+                    credit_hold?: number
                     id?: never
                     image_generation_count?: number | null
                     max_image_generation_count?: number | null
@@ -30,6 +32,7 @@ export type Database = {
                 }
                 Update: {
                     created_at?: string
+                    credit_hold?: number
                     id?: never
                     image_generation_count?: number | null
                     max_image_generation_count?: number | null
@@ -180,6 +183,7 @@ export type Database = {
             ai_image_generation_jobs: {
                 Row: {
                     created_at: string
+                    credit_cost: number
                     external_task_id: string
                     id: string
                     last_polled_at: string | null
@@ -192,6 +196,7 @@ export type Database = {
                 }
                 Insert: {
                     created_at?: string
+                    credit_cost?: number
                     external_task_id: string
                     id?: string
                     last_polled_at?: string | null
@@ -204,6 +209,7 @@ export type Database = {
                 }
                 Update: {
                     created_at?: string
+                    credit_cost?: number
                     external_task_id?: string
                     id?: string
                     last_polled_at?: string | null
@@ -652,6 +658,14 @@ export type Database = {
             [_ in never]: never
         }
         Functions: {
+            ai_image_settle_generation_job: {
+                Args: {
+                    p_job_id: string
+                    p_result_url: string
+                    p_success: boolean
+                }
+                Returns: null
+            }
             ai_image_start_generation_job: {
                 Args: {
                     p_external_task_id: string

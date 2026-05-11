@@ -21,10 +21,19 @@ export async function getCreditsAction(): Promise<CreditResponse> {
             data: null
         }
     }
+
+    const hold = creditsData.credit_hold ?? 0;
+    const bank = creditsData.image_generation_count ?? 0;
+    /** 可立即用于新开任务的次数 = 已入账剩余 − 进行中任务冻结 */
+    const available = Math.max(0, bank - hold);
+
     return {
         error: null,
         success: true,
-        data: creditsData
+        data: {
+            ...creditsData,
+            image_generation_count: available,
+        },
     }
 
 }

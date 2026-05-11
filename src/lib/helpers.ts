@@ -1,7 +1,3 @@
-import type { Tables } from '@datatypes.types';
-
-type Price = Tables<'ai_image_prices'>;
-
 export const getURL = (path: string = '') => {
     // Check if NEXT_PUBLIC_SITE_URL is set and non-empty. Set this to your site URL in production env.
     let url =
@@ -31,7 +27,7 @@ export const postData = async ({
     data
 }: {
     url: string;
-    data?: { price: Price };
+    data?: unknown;
 }) => {
     const res = await fetch(url, {
         method: 'POST',

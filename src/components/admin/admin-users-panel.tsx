@@ -28,15 +28,11 @@ export function AdminUsersPanel() {
 
     const [imgRem, setImgRem] = useState("");
     const [imgMax, setImgMax] = useState("");
-    const [trRem, setTrRem] = useState("");
-    const [trMax, setTrMax] = useState("");
     const [saving, setSaving] = useState(false);
 
     const applyViewToForm = (v: UserCreditsView) => {
         setImgRem(String(v.image.remaining));
         setImgMax(String(v.image.maxQuota));
-        setTrRem(String(v.training.remaining));
-        setTrMax(String(v.training.maxQuota));
     };
 
     const onSearch = async () => {
@@ -76,17 +72,16 @@ export function AdminUsersPanel() {
         };
         const a = parse(imgRem, t("fieldImgRem"));
         const b = parse(imgMax, t("fieldImgMax"));
-        const c = parse(trRem, t("fieldTrRem"));
-        const d = parse(trMax, t("fieldTrMax"));
-        if (a === null || b === null || c === null || d === null) return;
+        if (a === null || b === null) return;
+
+        const hold = view.credits?.credit_hold ?? 0;
+        const newBank = a + hold;
 
         setSaving(true);
         const res = await adminUpdateUserCreditsAction({
             userId: view.userId,
-            image_generation_count: a,
+            image_generation_count: newBank,
             max_image_generation_count: b,
-            model_training_count: c,
-            max_model_training_count: d,
         });
         setSaving(false);
         if (!res.ok) {
@@ -99,21 +94,14 @@ export function AdminUsersPanel() {
             credits: view.credits
                 ? {
                       ...view.credits,
-                      image_generation_count: a,
+                      image_generation_count: newBank,
                       max_image_generation_count: b,
-                      model_training_count: c,
-                      max_model_training_count: d,
                   }
                 : null,
             image: {
                 remaining: a,
                 maxQuota: b,
                 consumed: b > 0 ? Math.max(0, b - a) : null,
-            },
-            training: {
-                remaining: c,
-                maxQuota: d,
-                consumed: d > 0 ? Math.max(0, d - c) : null,
             },
         };
         setView(next);
@@ -160,8 +148,8 @@ export function AdminUsersPanel() {
                                 <span className="font-mono text-xs">{view.userId}</span>
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="grid gap-6 sm:grid-cols-2">
-                            <div className="rounded-lg border p-4 space-y-2">
+                        <CardContent>
+                            <div className="rounded-lg border p-4 space-y-2 max-w-md">
                                 <h4 className="font-medium">{t("blockImage")}</h4>
                                 <dl className="grid gap-1 text-sm">
                                     <div className="flex justify-between gap-2">
@@ -175,25 +163,6 @@ export function AdminUsersPanel() {
                                     <div className="flex justify-between gap-2">
                                         <dt className="text-muted-foreground">{t("labelConsumed")}</dt>
                                         <dd>{formatConsumed(view.image.consumed)}</dd>
-                                    </div>
-                                </dl>
-                            </div>
-                            <div className="rounded-lg border p-4 space-y-2">
-                                <h4 className="font-medium">{t("blockTraining")}</h4>
-                                <dl className="grid gap-1 text-sm">
-                                    <div className="flex justify-between gap-2">
-                                        <dt className="text-muted-foreground">{t("labelRemaining")}</dt>
-                                        <dd>{view.training.remaining}</dd>
-                                    </div>
-                                    <div className="flex justify-between gap-2">
-                                        <dt className="text-muted-foreground">{t("labelMaxQuota")}</dt>
-                                        <dd>
-                                            {view.training.maxQuota > 0 ? view.training.maxQuota : t("noCap")}
-                                        </dd>
-                                    </div>
-                                    <div className="flex justify-between gap-2">
-                                        <dt className="text-muted-foreground">{t("labelConsumed")}</dt>
-                                        <dd>{formatConsumed(view.training.consumed)}</dd>
                                     </div>
                                 </dl>
                             </div>
@@ -223,24 +192,6 @@ export function AdminUsersPanel() {
                                         inputMode="numeric"
                                         value={imgMax}
                                         onChange={(e) => setImgMax(e.target.value)}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="f-tr-rem">{t("fieldTrRem")}</Label>
-                                    <Input
-                                        id="f-tr-rem"
-                                        inputMode="numeric"
-                                        value={trRem}
-                                        onChange={(e) => setTrRem(e.target.value)}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="f-tr-max">{t("fieldTrMax")}</Label>
-                                    <Input
-                                        id="f-tr-max"
-                                        inputMode="numeric"
-                                        value={trMax}
-                                        onChange={(e) => setTrMax(e.target.value)}
                                     />
                                 </div>
                             </div>

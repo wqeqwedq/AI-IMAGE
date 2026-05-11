@@ -1,7 +1,7 @@
 import {
   Bookmark,
   CircleHelp,
-  CreditCard,
+  Gift,
   Images,
   Settings2,
   Sparkles,
@@ -37,9 +37,9 @@ export const navList = {
       icon: Images,
     },
     {
-      title: "Recharge",
-      url: "/billing",
-      icon: CreditCard,
+      title: "Redeem code",
+      url: "/redeem",
+      icon: Gift,
     },
     {
       title: "Help & feedback",
@@ -80,9 +80,9 @@ export const navList = {
       icon: Images,
     },
     {
-      title: "充值",
-      url: "/billing",
-      icon: CreditCard,
+      title: "兑换码",
+      url: "/redeem",
+      icon: Gift,
     },
     {
       title: "帮助与反馈",

@@ -3,9 +3,8 @@
 import {
   BadgeCheck,
   ChevronsUpDown,
-  CreditCard,
+  Gift,
   LogOut,
-  Sparkles,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -100,10 +99,10 @@ export const NavUser = ({
               </Link>
             </DropdownMenuGroup>
             <DropdownMenuGroup>
-              <Link href={"/billing"} className="w-full cursor-pointer">
+              <Link href={"/redeem"} className="w-full cursor-pointer">
                 <DropdownMenuItem>
-                  <CreditCard />
-                  {sidebarT("billing")}
+                  <Gift />
+                  {sidebarT("redeem")}
                 </DropdownMenuItem>
               </Link>
             </DropdownMenuGroup>

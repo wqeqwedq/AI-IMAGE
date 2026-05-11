@@ -27,7 +27,7 @@ export const SIZE_OPTIONS = [
 
 export const RESOLUTION_OPTIONS = ["1k", "2k", "4k"] as const;
 
-/** 生图扣费：与 DB 函数 `ai_image_start_generation_job` 保持一致 */
+/** 生图扣费点数：与 DB 中 `ai_image_start_generation_job` / `credit_cost` 分辨率规则一致；实际从 image_generation_count 扣减发生在任务成功拿到图 URL 时（轮询 settle 或同步完成）。 */
 export function generationCreditsForResolution(resolution: string): 1 | 2 | 3 {
   const r = resolution.trim().toLowerCase();
   if (r === "1k") return 1;

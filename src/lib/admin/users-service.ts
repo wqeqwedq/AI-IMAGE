@@ -17,11 +17,6 @@ export type UserCreditsView = {
         maxQuota: number;
         consumed: number | null;
     };
-    training: {
-        remaining: number;
-        maxQuota: number;
-        consumed: number | null;
-    };
 };
 
 function consumedOrNull(maxQuota: number, remaining: number): number | null {
@@ -30,10 +25,10 @@ function consumedOrNull(maxQuota: number, remaining: number): number | null {
 }
 
 function buildView(user: User, credits: Tables<"ai_image_credits"> | null): UserCreditsView {
-    const imgRem = credits?.image_generation_count ?? 0;
+    const bank = credits?.image_generation_count ?? 0;
+    const hold = credits?.credit_hold ?? 0;
+    const imgRem = Math.max(0, bank - hold);
     const imgMax = credits?.max_image_generation_count ?? 0;
-    const trRem = credits?.model_training_count ?? 0;
-    const trMax = credits?.max_model_training_count ?? 0;
 
     return {
         userId: user.id,
@@ -43,11 +38,6 @@ function buildView(user: User, credits: Tables<"ai_image_credits"> | null): User
             remaining: imgRem,
             maxQuota: imgMax,
             consumed: consumedOrNull(imgMax, imgRem),
-        },
-        training: {
-            remaining: trRem,
-            maxQuota: trMax,
-            consumed: consumedOrNull(trMax, trRem),
         },
     };
 }
@@ -112,8 +102,6 @@ export async function updateUserCredits(params: {
     userId: string;
     image_generation_count: number;
     max_image_generation_count: number;
-    model_training_count: number;
-    max_model_training_count: number;
 }): Promise<void> {
     await requireAdmin();
 
@@ -122,12 +110,7 @@ export async function updateUserCredits(params: {
         throw new Error("user_id_required");
     }
 
-    const nums = [
-        params.image_generation_count,
-        params.max_image_generation_count,
-        params.model_training_count,
-        params.max_model_training_count,
-    ];
+    const nums = [params.image_generation_count, params.max_image_generation_count];
     for (const n of nums) {
         if (!Number.isFinite(n) || n < 0 || n > 1_000_000_000) {
             throw new Error("invalid_number");
@@ -143,8 +126,6 @@ export async function updateUserCredits(params: {
     const row = {
         image_generation_count: params.image_generation_count,
         max_image_generation_count: params.max_image_generation_count,
-        model_training_count: params.model_training_count,
-        max_model_training_count: params.max_model_training_count,
     };
 
     if (existing) {
@@ -156,6 +137,8 @@ export async function updateUserCredits(params: {
         const insertRow: TablesInsert<"ai_image_credits"> = {
             user_id: uid,
             ...row,
+            model_training_count: 0,
+            max_model_training_count: 0,
         };
         const { error } = await supabaseAdmin.from("ai_image_credits").insert(insertRow);
         if (error) {
