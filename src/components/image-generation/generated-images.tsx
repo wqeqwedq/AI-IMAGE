@@ -16,10 +16,7 @@ import useGeneratedStore from "@/store/useGeneratedStore.ts";
 
 const GeneratedImages = () => {
   const images = useGeneratedStore((state) => state.images);
-  const [lightbox, setLightbox] = useState<{
-    url: string;
-    prompt: string;
-  } | null>(null);
+  const [lightboxUrl, setLightboxUrl] = useState<string | null>(null);
   const t = useTranslations("imageGeneration");
 
   if (images.length === 0) {
@@ -45,10 +42,7 @@ const GeneratedImages = () => {
                 onClick={() => {
                   const url = (image.url ?? "").trim();
                   if (!url) return;
-                  setLightbox({
-                    url,
-                    prompt: image.prompt ?? "",
-                  });
+                  setLightboxUrl(url);
                 }}
                 aria-label={t("generatedImages.viewFull")}
               >
@@ -73,17 +67,18 @@ const GeneratedImages = () => {
       </Carousel>
 
       <ImageLightboxDialog
-        open={lightbox !== null}
+        open={lightboxUrl !== null}
         onOpenChange={(open) => {
-          if (!open) setLightbox(null);
+          if (!open) setLightboxUrl(null);
         }}
-        imageUrl={lightbox?.url ?? ""}
-        prompt={lightbox?.prompt ?? ""}
+        imageUrl={lightboxUrl ?? ""}
+        prompt=""
         title={t("generatedImages.fullTitle")}
         copyLabel={t("generatedImages.copyPrompt")}
         copiedToast={t("generatedImages.copiedPrompt")}
         emptyPromptLabel={t("generatedImages.noPrompt")}
         emptyImageLabel={t("generatedImages.noImage")}
+        imageOnly
       />
     </>
   );

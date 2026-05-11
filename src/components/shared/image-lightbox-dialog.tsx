@@ -29,6 +29,8 @@ export type ImageLightboxDialogProps = {
   emptyPromptLabel: string;
   /** imageUrl 为空时展示（勿对原生 img 传 src=""） */
   emptyImageLabel?: string;
+  /** 仅放大图片：不展示提示词、复制等底部信息 */
+  imageOnly?: boolean;
 };
 
 export function ImageLightboxDialog({
@@ -42,6 +44,7 @@ export function ImageLightboxDialog({
   footerExtra,
   emptyPromptLabel,
   emptyImageLabel = "No image URL",
+  imageOnly = false,
 }: ImageLightboxDialogProps) {
   const displayPrompt = prompt.trim() ? prompt : emptyPromptLabel;
   const safeImageSrc = imageUrl.trim();
@@ -63,22 +66,42 @@ export function ImageLightboxDialog({
         hideClose
         onOpenAutoFocus={(e) => e.preventDefault()}
         className={cn(
-          "left-[50%] top-[50%] z-50 max-h-[min(96dvh,920px)] w-[min(96vw,900px)] max-w-[min(96vw,900px)] translate-x-[-50%] translate-y-[-50%]",
-          "gap-0 overflow-hidden border bg-card p-0 shadow-2xl sm:rounded-lg"
+          "left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%]",
+          "gap-0 overflow-hidden border bg-card p-0 shadow-2xl sm:rounded-lg",
+          imageOnly
+            ? "max-h-[min(98dvh,960px)] w-[min(98vw,960px)] max-w-[min(98vw,960px)]"
+            : "max-h-[min(96dvh,920px)] w-[min(96vw,900px)] max-w-[min(96vw,900px)]"
         )}
       >
         <DialogHeader className="sr-only">
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
 
-        <div className="flex max-h-[min(92dvh,880px)] flex-col">
-          <div className="flex min-h-0 flex-1 items-center justify-center bg-muted/30 p-2 sm:p-3">
+        <div
+          className={cn(
+            "flex flex-col",
+            imageOnly
+              ? "max-h-[min(96dvh,940px)]"
+              : "max-h-[min(92dvh,880px)]"
+          )}
+        >
+          <div
+            className={cn(
+              "flex min-h-0 flex-1 items-center justify-center bg-muted/30",
+              imageOnly ? "p-1 sm:p-2" : "p-2 sm:p-3"
+            )}
+          >
             {safeImageSrc ? (
               /* 原生 img：浏览器请求的就是 result_url，不会变成 /_next/image?... */
               <img
                 src={safeImageSrc}
                 alt=""
-                className="max-h-[min(72dvh,780px)] max-w-full object-contain"
+                className={cn(
+                  "max-w-full object-contain",
+                  imageOnly
+                    ? "max-h-[min(92dvh,920px)]"
+                    : "max-h-[min(72dvh,780px)]"
+                )}
                 decoding="async"
               />
             ) : (
@@ -86,24 +109,26 @@ export function ImageLightboxDialog({
             )}
           </div>
 
-          <div className="shrink-0 space-y-3 border-t bg-background px-4 py-3">
-            <p className="max-h-32 overflow-y-auto text-sm leading-relaxed text-muted-foreground break-words whitespace-pre-wrap">
-              {displayPrompt}
-            </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                type="button"
-                size="sm"
-                variant="secondary"
-                disabled={!prompt.trim()}
-                onClick={() => void copyPrompt()}
-              >
-                <Copy className="mr-2 h-4 w-4" />
-                {copyLabel}
-              </Button>
-              {footerExtra}
+          {!imageOnly ? (
+            <div className="shrink-0 space-y-3 border-t bg-background px-4 py-3">
+              <p className="max-h-32 overflow-y-auto text-sm leading-relaxed text-muted-foreground break-words whitespace-pre-wrap">
+                {displayPrompt}
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  disabled={!prompt.trim()}
+                  onClick={() => void copyPrompt()}
+                >
+                  <Copy className="mr-2 h-4 w-4" />
+                  {copyLabel}
+                </Button>
+                {footerExtra}
+              </div>
             </div>
-          </div>
+          ) : null}
         </div>
       </DialogContent>
     </Dialog>
