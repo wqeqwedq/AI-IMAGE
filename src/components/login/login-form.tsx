@@ -1,5 +1,5 @@
 "use client";
-import React, { useId, useState } from "react";
+import React, { useEffect, useId, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { safeInternalPath } from "@/lib/admin/safe-internal-path";
 import {
@@ -19,16 +19,19 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { loginAction } from "@/app/actions/auth-actions";
 import { redirect } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { GoogleSignin } from "./google-signin";
 import { GithubSignin } from "./github-signin";
+import { useAuthBrandPanel } from "@/components/login/auth-brand-panel-context";
 
 export const LoginForm = () => {
+  const { patch } = useAuthBrandPanel();
   const searchParams = useSearchParams();
   const nextAfterLogin = searchParams.get("next");
   const [loading, setLoading] = useState(false);
+  const [showPwd, setShowPwd] = useState(false);
   const toastId = useId();
   const loginFormT = useTranslations("login.loginForm");
   const formSchema = z.object({
@@ -46,6 +49,16 @@ export const LoginForm = () => {
       password: "",
     },
   });
+  const watchedPassword = form.watch("password");
+
+  useEffect(() => {
+    patch({
+      password: watchedPassword ?? "",
+      confirmPassword: "",
+      showPassword: showPwd,
+    });
+  }, [watchedPassword, showPwd, patch]);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setLoading(true);
     toast.loading(loginFormT("info1"), { id: toastId });
@@ -88,7 +101,18 @@ export const LoginForm = () => {
                   <FormItem>
                     <FormLabel> {loginFormT("email")}</FormLabel>
                     <FormControl>
-                      <Input placeholder="name@ecample.com" {...field} />
+                      <Input
+                        placeholder="name@ecample.com"
+                        autoComplete="email"
+                        {...field}
+                        onFocus={() => {
+                          patch({ isTyping: true });
+                        }}
+                        onBlur={() => {
+                          field.onBlur();
+                          patch({ isTyping: false });
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -101,11 +125,27 @@ export const LoginForm = () => {
                   <FormItem>
                     <FormLabel>{loginFormT("password")}</FormLabel>
                     <FormControl>
-                      <Input
-                        type="password"
-                        placeholder={loginFormT("passwordInfo")}
-                        {...field}
-                      />
+                      <div className="relative">
+                        <Input
+                          type={showPwd ? "text" : "password"}
+                          placeholder={loginFormT("passwordInfo")}
+                          autoComplete="current-password"
+                          className="pr-10"
+                          {...field}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPwd((v) => !v)}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-muted-foreground hover:text-foreground"
+                          aria-label={showPwd ? "Hide password" : "Show password"}
+                        >
+                          {showPwd ? (
+                            <EyeOff className="size-4" />
+                          ) : (
+                            <Eye className="size-4" />
+                          )}
+                        </button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

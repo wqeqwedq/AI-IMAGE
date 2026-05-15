@@ -32,6 +32,10 @@ export async function middleware(request: NextRequest) {
         }
     }
 
+    /** 根路径带 ?code= 时由首页转交 /auth/callback，避免 OAuth 落地被拦到登录页 */
+    const rootOAuthCodeLanding =
+        pathname === "/" && request.nextUrl.searchParams.has("code");
+
     if (
         !user &&
         !pathname.startsWith("/login") &&
@@ -39,7 +43,7 @@ export async function middleware(request: NextRequest) {
         !pathname.startsWith("/reset-password") &&
         !pathname.startsWith("/account-reset-password") &&
         !pathname.startsWith("/signup") &&
-        pathname !== "/"
+        !rootOAuthCodeLanding
     ) {
         const loginUrl = request.nextUrl.clone();
         loginUrl.pathname = "/login";

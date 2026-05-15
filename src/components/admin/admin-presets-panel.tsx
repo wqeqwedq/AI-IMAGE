@@ -6,7 +6,10 @@ import {
     adminListPresetsAction,
     adminUpdatePresetAction,
 } from "@/app/actions/admin-presets-actions";
-import type { AdminPresetRow } from "@/lib/admin/presets-service";
+import type {
+    AdminPresetCategoryTree,
+    AdminPresetRow,
+} from "@/lib/admin/presets-service";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -55,15 +58,9 @@ import {
     SIZE_OPTIONS,
     imageUrlsFromTextarea,
 } from "@/lib/generation-params";
-import {
-    DEFAULT_PRIMARY_CATEGORY,
-    DEFAULT_SECONDARY_CATEGORY,
-    getSecondaries,
-    PRIMARY_CATEGORY_LIST,
-} from "@/lib/inspiration/categories";
 import { Loader2, Pencil, Trash2 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 type Visibility = "all" | "public" | "private" | "platform";
@@ -90,9 +87,17 @@ function pickCategoryFields(
 export function AdminPresetsPanel({
     initialRows,
     initialTotal,
+    categoryTree,
+    defaultCategoryPrimary,
+    defaultCategorySecondary,
+    initialCreateCategoryMode,
 }: {
     initialRows: AdminPresetRow[];
     initialTotal: number;
+    categoryTree: AdminPresetCategoryTree;
+    defaultCategoryPrimary: string;
+    defaultCategorySecondary: string;
+    initialCreateCategoryMode: CategoryMode;
 }) {
     const t = useTranslations("admin.presetsPanel");
     const locale = useLocale();
@@ -111,8 +116,8 @@ export function AdminPresetsPanel({
     const [editing, setEditing] = useState<AdminPresetRow | null>(null);
     const [formTitle, setFormTitle] = useState("");
     const [formPublic, setFormPublic] = useState(true);
-    const [formPrimary, setFormPrimary] = useState<string>(DEFAULT_PRIMARY_CATEGORY);
-    const [formSecondary, setFormSecondary] = useState<string>(DEFAULT_SECONDARY_CATEGORY);
+    const [formPrimary, setFormPrimary] = useState<string>(defaultCategoryPrimary);
+    const [formSecondary, setFormSecondary] = useState<string>(defaultCategorySecondary);
     const [formPrompt, setFormPrompt] = useState("");
     const [formNeg, setFormNeg] = useState("");
     const [formCover, setFormCover] = useState("");
@@ -128,9 +133,10 @@ export function AdminPresetsPanel({
     const [createTitle, setCreateTitle] = useState("");
     const [createCover, setCreateCover] = useState("");
     const [createNeg, setCreateNeg] = useState("");
-    const [createPrimary, setCreatePrimary] = useState<string>(DEFAULT_PRIMARY_CATEGORY);
-    const [createSecondary, setCreateSecondary] = useState<string>(DEFAULT_SECONDARY_CATEGORY);
-    const [createCategoryMode, setCreateCategoryMode] = useState<CategoryMode>("tree");
+    const [createPrimary, setCreatePrimary] = useState<string>(defaultCategoryPrimary);
+    const [createSecondary, setCreateSecondary] = useState<string>(defaultCategorySecondary);
+    const [createCategoryMode, setCreateCategoryMode] =
+        useState<CategoryMode>(initialCreateCategoryMode);
     const [createCustomPrimary, setCreateCustomPrimary] = useState("");
     const [createCustomSecondary, setCreateCustomSecondary] = useState("");
     const [createPublicSelf, setCreatePublicSelf] = useState(true);
@@ -141,8 +147,53 @@ export function AdminPresetsPanel({
     const [createImageUrlsText, setCreateImageUrlsText] = useState("");
     const [creating, setCreating] = useState(false);
 
-    const secondaries = useMemo(() => [...getSecondaries(formPrimary)], [formPrimary]);
-    const createSecondaries = useMemo(() => [...getSecondaries(createPrimary)], [createPrimary]);
+    const primaryKeysForFilter = useMemo(
+        () =>
+            Object.keys(categoryTree).sort((a, b) =>
+                a.localeCompare(b, "zh-Hans-CN")
+            ),
+        [categoryTree]
+    );
+
+    const primaryKeysForTreeSelect = useMemo(
+        () =>
+            primaryKeysForFilter.filter(
+                (p) => (categoryTree[p]?.length ?? 0) > 0
+            ),
+        [primaryKeysForFilter, categoryTree]
+    );
+
+    const treeUsable = primaryKeysForTreeSelect.length > 0;
+
+    const secondaries = useMemo(
+        () => categoryTree[formPrimary] ?? [],
+        [categoryTree, formPrimary]
+    );
+    const createSecondaries = useMemo(
+        () => categoryTree[createPrimary] ?? [],
+        [categoryTree, createPrimary]
+    );
+
+    useEffect(() => {
+        if (
+            primaryFilter !== ALL_PRIMARY_VALUE &&
+            !Object.prototype.hasOwnProperty.call(categoryTree, primaryFilter)
+        ) {
+            setPrimaryFilter(ALL_PRIMARY_VALUE);
+        }
+    }, [categoryTree, primaryFilter]);
+
+    useEffect(() => {
+        if (!treeUsable && createCategoryMode === "tree") {
+            setCreateCategoryMode("custom");
+        }
+    }, [treeUsable, createCategoryMode]);
+
+    useEffect(() => {
+        if (sheetOpen && !treeUsable && formCategoryMode === "tree") {
+            setFormCategoryMode("custom");
+        }
+    }, [sheetOpen, treeUsable, formCategoryMode]);
 
     const loadPage = useCallback(
         async (p: number) => {
@@ -171,13 +222,13 @@ export function AdminPresetsPanel({
         setEditing(row);
         setFormTitle(row.title);
         setFormPublic(row.is_public);
-        const p = row.primary_category;
-        const s = row.secondary_category;
-        const primaries = PRIMARY_CATEGORY_LIST as string[];
-        const primaryOk = primaries.includes(p);
-        const subs = primaryOk ? [...getSecondaries(p)] : [];
-        const secondaryOk = primaryOk && subs.includes(s);
-        if (primaryOk && secondaryOk) {
+        const p = row.primary_category ?? "";
+        const s = row.secondary_category ?? "";
+        const subs = Object.prototype.hasOwnProperty.call(categoryTree, p)
+            ? (categoryTree[p] ?? [])
+            : [];
+        const canUseTree = subs.length > 0 && subs.includes(s);
+        if (canUseTree) {
             setFormCategoryMode("tree");
             setFormPrimary(p);
             setFormSecondary(s);
@@ -187,8 +238,8 @@ export function AdminPresetsPanel({
             setFormCategoryMode("custom");
             setFormCustomPrimary(p);
             setFormCustomSecondary(s);
-            setFormPrimary(DEFAULT_PRIMARY_CATEGORY);
-            setFormSecondary(DEFAULT_SECONDARY_CATEGORY);
+            setFormPrimary(defaultCategoryPrimary);
+            setFormSecondary(defaultCategorySecondary);
         }
         setFormPrompt(row.prompt ?? "");
         setFormNeg(row.negative_prompt ?? "");
@@ -198,14 +249,14 @@ export function AdminPresetsPanel({
 
     const onPrimaryChange = (v: string) => {
         setFormPrimary(v);
-        const subs = getSecondaries(v);
-        setFormSecondary(subs[0]!);
+        const subs = categoryTree[v] ?? [];
+        setFormSecondary(subs[0] ?? "");
     };
 
     const onCreatePrimaryChange = (v: string) => {
         setCreatePrimary(v);
-        const subs = getSecondaries(v);
-        setCreateSecondary(subs[0]!);
+        const subs = categoryTree[v] ?? [];
+        setCreateSecondary(subs[0] ?? "");
     };
 
     const onCreateSubmit = async (e: React.FormEvent) => {
@@ -220,6 +271,13 @@ export function AdminPresetsPanel({
             toast.error(t("createErrPrompt"));
             return;
         }
+        if (createCategoryMode === "tree") {
+            const subs = categoryTree[createPrimary] ?? [];
+            if (subs.length === 0 || !subs.includes(createSecondary)) {
+                toast.error(t("errTreeCategory"));
+                return;
+            }
+        }
         const cat = pickCategoryFields(
             createCategoryMode,
             createPrimary,
@@ -228,57 +286,69 @@ export function AdminPresetsPanel({
             createCustomSecondary
         );
         setCreating(true);
-        const res = await adminCreatePresetAction({
-            ownerType: createOwner,
-            title,
-            cover_image: createCover.trim() ? createCover.trim() : null,
-            negative_prompt: createNeg,
-            primary_category: cat.primary_category,
-            secondary_category: cat.secondary_category,
-            is_public: createOwner === "platform" ? true : createPublicSelf,
-            generation: {
-                model: createModel,
-                prompt,
-                n: 1,
-                size: createSize,
-                resolution: createResolution,
-                image_urls: imageUrlsFromTextarea(createImageUrlsText),
-            },
-        });
-        setCreating(false);
-        if (!res.ok) {
-            const err =
-                res.error === "title_required"
-                    ? t("errTitle")
-                    : res.error === "invalid_categories"
-                      ? t("errCategories")
-                      : res.error === "category_too_long"
-                        ? t("errCategoryTooLong")
-                        : res.error;
-            toast.error(err);
-            return;
+        try {
+            const res = await adminCreatePresetAction({
+                ownerType: createOwner,
+                title,
+                cover_image: createCover.trim() ? createCover.trim() : null,
+                negative_prompt: createNeg,
+                primary_category: cat.primary_category,
+                secondary_category: cat.secondary_category,
+                is_public: createOwner === "platform" ? true : createPublicSelf,
+                generation: {
+                    model: createModel,
+                    prompt,
+                    n: 1,
+                    size: createSize,
+                    resolution: createResolution,
+                    image_urls: imageUrlsFromTextarea(createImageUrlsText),
+                },
+            });
+            if (!res.ok) {
+                const err =
+                    res.error === "title_required"
+                        ? t("errTitle")
+                        : res.error === "invalid_categories"
+                          ? t("errCategories")
+                          : res.error === "category_too_long"
+                            ? t("errCategoryTooLong")
+                            : res.error;
+                toast.error(err);
+                return;
+            }
+            toast.success(t("toastCreateOk"));
+            setCreateTitle("");
+            setCreateCover("");
+            setCreateNeg("");
+            setCreatePrimary(defaultCategoryPrimary);
+            setCreateSecondary(defaultCategorySecondary);
+            setCreateCategoryMode(initialCreateCategoryMode);
+            setCreateCustomPrimary("");
+            setCreateCustomSecondary("");
+            setCreatePublicSelf(true);
+            setCreateModel(GPT_IMAGE_MODEL);
+            setCreateSize("3:4");
+            setCreateResolution("2k");
+            setCreatePrompt("");
+            setCreateImageUrlsText("");
+            setCreateOwner("platform");
+            await loadPage(1);
+        } catch {
+            toast.error(t("toastServerActionNetwork"));
+        } finally {
+            setCreating(false);
         }
-        toast.success(t("toastCreateOk"));
-        setCreateTitle("");
-        setCreateCover("");
-        setCreateNeg("");
-        setCreatePrimary(DEFAULT_PRIMARY_CATEGORY);
-        setCreateSecondary(DEFAULT_SECONDARY_CATEGORY);
-        setCreateCategoryMode("tree");
-        setCreateCustomPrimary("");
-        setCreateCustomSecondary("");
-        setCreatePublicSelf(true);
-        setCreateModel(GPT_IMAGE_MODEL);
-        setCreateSize("3:4");
-        setCreateResolution("2k");
-        setCreatePrompt("");
-        setCreateImageUrlsText("");
-        setCreateOwner("platform");
-        await loadPage(1);
     };
 
     const onSaveSheet = async () => {
         if (!editing) return;
+        if (formCategoryMode === "tree") {
+            const subs = categoryTree[formPrimary] ?? [];
+            if (subs.length === 0 || !subs.includes(formSecondary)) {
+                toast.error(t("errTreeCategory"));
+                return;
+            }
+        }
         const cat = pickCategoryFields(
             formCategoryMode,
             formPrimary,
@@ -287,51 +357,61 @@ export function AdminPresetsPanel({
             formCustomSecondary
         );
         setSaving(true);
-        const res = await adminUpdatePresetAction({
-            id: editing.id,
-            title: formTitle,
-            is_public: formPublic,
-            primary_category: cat.primary_category,
-            secondary_category: cat.secondary_category,
-            prompt: formPrompt,
-            negative_prompt: formNeg,
-            cover_image: formCover.trim() ? formCover.trim() : null,
-        });
-        setSaving(false);
-        if (!res.ok) {
-            const err =
-                res.error === "title_required"
-                    ? t("errTitle")
-                    : res.error === "invalid_categories"
-                      ? t("errCategories")
-                      : res.error === "category_too_long"
-                        ? t("errCategoryTooLong")
-                        : res.error === "not_found"
-                        ? t("errNotFound")
-                        : res.error === "platform_must_stay_public"
-                          ? t("errPlatformPublic")
-                          : res.error;
-            toast.error(err);
-            return;
+        try {
+            const res = await adminUpdatePresetAction({
+                id: editing.id,
+                title: formTitle,
+                is_public: formPublic,
+                primary_category: cat.primary_category,
+                secondary_category: cat.secondary_category,
+                prompt: formPrompt,
+                negative_prompt: formNeg,
+                cover_image: formCover.trim() ? formCover.trim() : null,
+            });
+            if (!res.ok) {
+                const err =
+                    res.error === "title_required"
+                        ? t("errTitle")
+                        : res.error === "invalid_categories"
+                          ? t("errCategories")
+                          : res.error === "category_too_long"
+                            ? t("errCategoryTooLong")
+                            : res.error === "not_found"
+                              ? t("errNotFound")
+                              : res.error === "platform_must_stay_public"
+                                ? t("errPlatformPublic")
+                                : res.error;
+                toast.error(err);
+                return;
+            }
+            toast.success(t("toastSaved"));
+            setSheetOpen(false);
+            setEditing(null);
+            await loadPage(page);
+        } catch {
+            toast.error(t("toastServerActionNetwork"));
+        } finally {
+            setSaving(false);
         }
-        toast.success(t("toastSaved"));
-        setSheetOpen(false);
-        setEditing(null);
-        await loadPage(page);
     };
 
     const onConfirmDelete = async () => {
         if (!deleteId) return;
         setDeleting(true);
-        const res = await adminDeletePresetAction(deleteId);
-        setDeleting(false);
-        setDeleteId(null);
-        if (!res.ok) {
-            toast.error(res.error || t("toastDeleteError"));
-            return;
+        try {
+            const res = await adminDeletePresetAction(deleteId);
+            if (!res.ok) {
+                toast.error(res.error || t("toastDeleteError"));
+                return;
+            }
+            toast.success(t("toastDeleted"));
+            await loadPage(rows.length <= 1 && page > 1 ? page - 1 : page);
+        } catch {
+            toast.error(t("toastServerActionNetwork"));
+        } finally {
+            setDeleting(false);
+            setDeleteId(null);
         }
-        toast.success(t("toastDeleted"));
-        await loadPage(rows.length <= 1 && page > 1 ? page - 1 : page);
     };
 
     const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -380,8 +460,20 @@ export function AdminPresetsPanel({
                                 className="flex flex-col gap-3 sm:flex-row sm:gap-8"
                             >
                                 <div className="flex items-center gap-2">
-                                    <RadioGroupItem value="tree" id="create-cat-tree" />
-                                    <Label htmlFor="create-cat-tree" className="cursor-pointer font-normal">
+                                    <RadioGroupItem
+                                        value="tree"
+                                        id="create-cat-tree"
+                                        disabled={!treeUsable}
+                                    />
+                                    <Label
+                                        htmlFor="create-cat-tree"
+                                        className={`font-normal ${treeUsable ? "cursor-pointer" : "cursor-not-allowed text-muted-foreground"}`}
+                                        title={
+                                            treeUsable
+                                                ? undefined
+                                                : t("treeDisabledNoCategories")
+                                        }
+                                    >
                                         {t("categoryModeTree")}
                                     </Label>
                                 </div>
@@ -401,7 +493,7 @@ export function AdminPresetsPanel({
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                {PRIMARY_CATEGORY_LIST.map((p) => (
+                                                {primaryKeysForTreeSelect.map((p) => (
                                                     <SelectItem key={p} value={p}>
                                                         {p}
                                                     </SelectItem>
@@ -607,7 +699,7 @@ export function AdminPresetsPanel({
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value={ALL_PRIMARY_VALUE}>{t("primaryAll")}</SelectItem>
-                                {PRIMARY_CATEGORY_LIST.map((p) => (
+                                {primaryKeysForFilter.map((p) => (
                                     <SelectItem key={p} value={p}>
                                         {p}
                                     </SelectItem>
@@ -797,8 +889,20 @@ export function AdminPresetsPanel({
                                     className="flex flex-col gap-3 sm:flex-row sm:gap-8"
                                 >
                                     <div className="flex items-center gap-2">
-                                        <RadioGroupItem value="tree" id="edit-cat-tree" />
-                                        <Label htmlFor="edit-cat-tree" className="cursor-pointer font-normal">
+                                        <RadioGroupItem
+                                            value="tree"
+                                            id="edit-cat-tree"
+                                            disabled={!treeUsable}
+                                        />
+                                        <Label
+                                            htmlFor="edit-cat-tree"
+                                            className={`font-normal ${treeUsable ? "cursor-pointer" : "cursor-not-allowed text-muted-foreground"}`}
+                                            title={
+                                                treeUsable
+                                                    ? undefined
+                                                    : t("treeDisabledNoCategories")
+                                            }
+                                        >
                                             {t("categoryModeTree")}
                                         </Label>
                                     </div>
@@ -818,7 +922,7 @@ export function AdminPresetsPanel({
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {PRIMARY_CATEGORY_LIST.map((p) => (
+                                                    {primaryKeysForTreeSelect.map((p) => (
                                                         <SelectItem key={p} value={p}>
                                                             {p}
                                                         </SelectItem>

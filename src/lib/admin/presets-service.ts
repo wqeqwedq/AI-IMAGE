@@ -6,12 +6,31 @@ import {
     generationParamsSchema,
 } from "@/lib/generation-params";
 import { sanitizeInspirationSearch } from "@/lib/inspiration/categories";
+import {
+    buildPresetCategoryTree,
+    type PresetCategoryTree,
+} from "@/lib/presets/build-preset-category-tree";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requireAdmin } from "./require-admin";
+
+export type AdminPresetCategoryTree = PresetCategoryTree;
 
 export type AdminPresetRow = Tables<"presets">;
 
 const ADMIN_CATEGORY_MAX_LEN = 80;
+
+/** 全表 presets 聚合一级 / 二级（含非公开），供管理端下拉与筛选 */
+export async function fetchAdminPresetCategoryTree(): Promise<AdminPresetCategoryTree> {
+    const { data, error } = await supabaseAdmin
+        .from("presets")
+        .select("primary_category, secondary_category");
+
+    if (error || !data?.length) {
+        return {};
+    }
+
+    return buildPresetCategoryTree(data);
+}
 
 /** 管理端：允许预定义树以外的类目字符串（与 DB text 列一致） */
 export function assertAdminPresetCategories(

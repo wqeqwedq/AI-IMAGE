@@ -8,10 +8,7 @@ import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import {
-  getSecondaries,
-  PRIMARY_CATEGORY_LIST,
-} from "@/lib/inspiration/categories";
+import type { PublicPresetCategoryTree } from "@/lib/inspiration/fetch-public-presets";
 
 function buildQueryString(
   base: URLSearchParams,
@@ -28,7 +25,11 @@ function buildQueryString(
   return next.toString();
 }
 
-export default function InspirationToolbar() {
+export default function InspirationToolbar({
+  categoryTree,
+}: {
+  categoryTree: PublicPresetCategoryTree;
+}) {
   const t = useTranslations("inspiration");
   const router = useRouter();
   const pathname = usePathname();
@@ -58,17 +59,25 @@ export default function InspirationToolbar() {
     return () => clearTimeout(handle);
   }, [localQ, pathname, qFromUrl, router, spKey]);
 
+  const primaryList = useMemo(
+    () =>
+      Object.keys(categoryTree).sort((a, b) =>
+        a.localeCompare(b, "zh-Hans-CN")
+      ),
+    [categoryTree]
+  );
+
   const activePrimary = useMemo(() => {
     if (!primaryFromUrl) return "";
-    return (PRIMARY_CATEGORY_LIST as readonly string[]).includes(primaryFromUrl)
+    return Object.prototype.hasOwnProperty.call(categoryTree, primaryFromUrl)
       ? primaryFromUrl
       : "";
-  }, [primaryFromUrl]);
+  }, [primaryFromUrl, categoryTree]);
 
   const secondaries = useMemo(() => {
     if (!activePrimary) return [];
-    return [...getSecondaries(activePrimary)];
-  }, [activePrimary]);
+    return categoryTree[activePrimary] ?? [];
+  }, [activePrimary, categoryTree]);
 
   const activeSecondary = useMemo(() => {
     if (!activePrimary || !secondaryFromUrl) return "";
@@ -85,8 +94,9 @@ export default function InspirationToolbar() {
       pushParams({ primary: null, secondary: null });
       return;
     }
+    const subs = categoryTree[p] ?? [];
     const nextSecondary =
-      secondaryFromUrl && getSecondaries(p).includes(secondaryFromUrl)
+      secondaryFromUrl && subs.includes(secondaryFromUrl)
         ? secondaryFromUrl
         : null;
     pushParams({
@@ -127,7 +137,7 @@ export default function InspirationToolbar() {
           >
             {t("allPrimary")}
           </Button>
-          {PRIMARY_CATEGORY_LIST.map((p) => (
+          {primaryList.map((p) => (
             <Button
               key={p}
               type="button"

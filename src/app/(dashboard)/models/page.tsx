@@ -1,9 +1,10 @@
-import React, { Suspense } from "react";
+import React from "react";
 import { createServer } from "@/lib/supabase/server";
 import InspirationTitle from "@/components/inspiration/title";
 import InspirationToolbar from "@/components/inspiration/inspiration-toolbar";
 import InspirationGrid from "@/components/inspiration/inspiration-grid";
 import {
+  fetchPublicPresetCategoryTree,
   fetchPublicPresetsForInspiration,
   parseInspirationSearchParams,
 } from "@/lib/inspiration/fetch-public-presets";
@@ -14,8 +15,9 @@ type PageProps = {
 
 const ModelsPage = async ({ searchParams }: PageProps) => {
   const sp = (await searchParams) ?? {};
-  const filters = parseInspirationSearchParams(sp);
   const supabase = await createServer();
+  const categoryTree = await fetchPublicPresetCategoryTree(supabase);
+  const filters = parseInspirationSearchParams(sp, categoryTree);
   const { data: inspirations } = await fetchPublicPresetsForInspiration(
     supabase,
     filters
@@ -29,9 +31,7 @@ const ModelsPage = async ({ searchParams }: PageProps) => {
   return (
     <section className="container mx-auto">
       <InspirationTitle />
-      <Suspense fallback={null}>
-        <InspirationToolbar />
-      </Suspense>
+      <InspirationToolbar categoryTree={categoryTree} />
       <InspirationGrid
         items={inspirations}
         filteredActive={filteredActive}

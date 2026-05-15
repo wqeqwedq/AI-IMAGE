@@ -1,6 +1,5 @@
 import React, { Suspense } from "react";
 import LoginForm from "@/components/login/login-form";
-import LoginImage from "@/components/login/login-image";
 import { createServer } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/supabase/queries";
@@ -13,16 +12,13 @@ const LoginPage = async () => {
     return redirect("/dashboard");
   }
   return (
-    <main className="h-screen grid grid-cols-1 md:grid-cols-2 relative">
-      <LoginImage />
-      <div className="relative flex flex-col items-center justify-center p-8 h-full w-full">
-        <div className=" w-full md:w-[400px] mx-auto">
-          <Suspense fallback={<div className="text-center text-sm text-muted-foreground py-8">…</div>}>
-            <LoginForm />
-          </Suspense>
-        </div>
-      </div>
-    </main>
+    <Suspense
+      fallback={
+        <div className="text-center text-sm text-muted-foreground py-8">…</div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 };
 

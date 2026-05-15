@@ -632,6 +632,74 @@ export type Database = {
                 }
                 Relationships: []
             }
+            login_brand_dialogue_sets: {
+                Row: {
+                    id: string
+                    slug: string | null
+                    enabled: boolean
+                    weight: number
+                    created_at: string
+                    updated_at: string
+                }
+                Insert: {
+                    id?: string
+                    slug?: string | null
+                    enabled?: boolean
+                    weight?: number
+                    created_at?: string
+                    updated_at?: string
+                }
+                Update: {
+                    id?: string
+                    slug?: string | null
+                    enabled?: boolean
+                    weight?: number
+                    created_at?: string
+                    updated_at?: string
+                }
+                Relationships: []
+            }
+            login_brand_dialogue_lines: {
+                Row: {
+                    id: string
+                    set_id: string
+                    line_order: number
+                    speaker: string
+                    body_zh: string
+                    body_en: string
+                    created_at: string
+                    updated_at: string
+                }
+                Insert: {
+                    id?: string
+                    set_id: string
+                    line_order: number
+                    speaker: string
+                    body_zh: string
+                    body_en: string
+                    created_at?: string
+                    updated_at?: string
+                }
+                Update: {
+                    id?: string
+                    set_id?: string
+                    line_order?: number
+                    speaker?: string
+                    body_zh?: string
+                    body_en?: string
+                    created_at?: string
+                    updated_at?: string
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "login_brand_dialogue_lines_set_id_fkey"
+                        columns: ["set_id"]
+                        isOneToOne: false
+                        referencedRelation: "login_brand_dialogue_sets"
+                        referencedColumns: ["id"]
+                    },
+                ]
+            }
             feedback_submissions: {
                 Row: {
                     id: string

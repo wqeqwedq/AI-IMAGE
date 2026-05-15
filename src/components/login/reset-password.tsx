@@ -1,5 +1,5 @@
 "use client";
-import React, { useId, useState } from "react";
+import React, { useEffect, useId, useState } from "react";
 import {
   Form,
   FormControl,
@@ -15,12 +15,13 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { loginAction, resetPasswordAction } from "@/app/actions/auth-actions";
-import { redirect } from "next/navigation";
+import { resetPasswordAction } from "@/app/actions/auth-actions";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useAuthBrandPanel } from "@/components/login/auth-brand-panel-context";
 
 export const ResetPassword = () => {
+  const { patch } = useAuthBrandPanel();
   const [loading, setLoading] = useState(false);
   const toastId = useId();
   const resetPasswordT = useTranslations("login.resetPassword");
@@ -35,6 +36,16 @@ export const ResetPassword = () => {
       email: "",
     },
   });
+
+  useEffect(() => {
+    patch({
+      password: "",
+      confirmPassword: "",
+      showPassword: false,
+      isTyping: false,
+    });
+  }, [patch]);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     toast.loading(resetPasswordT("infoLoading"), { id: toastId });
     try {
@@ -46,8 +57,10 @@ export const ResetPassword = () => {
       } else {
         toast.success(resetPasswordT("infoSuccess"), { id: toastId });
       }
-    } catch (error: any) {
-      toast.error(error?.message || resetPasswordT("infoError"), {
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : resetPasswordT("infoError");
+      toast.error(message, {
         id: toastId,
       });
     }
@@ -71,7 +84,18 @@ export const ResetPassword = () => {
                 <FormItem>
                   <FormLabel>{resetPasswordT("email")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="name@ecample.com" {...field} />
+                    <Input
+                      placeholder="name@ecample.com"
+                      autoComplete="email"
+                      {...field}
+                      onFocus={() => {
+                        patch({ isTyping: true });
+                      }}
+                      onBlur={() => {
+                        field.onBlur();
+                        patch({ isTyping: false });
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -1,11 +1,14 @@
 import type { createServer } from "@/lib/supabase/server";
+import { sanitizeInspirationSearch } from "@/lib/inspiration/categories";
 import {
-  isKnownPrimary,
-  isValidCategoryPair,
-  sanitizeInspirationSearch,
-} from "@/lib/inspiration/categories";
+    buildPresetCategoryTree,
+    type PresetCategoryTree,
+} from "@/lib/presets/build-preset-category-tree";
 
 type Client = Awaited<ReturnType<typeof createServer>>;
+
+/** 公开预设中出现过的一级 → 二级列表（来自 DB 聚合，供 /models 筛选与 URL 校验） */
+export type PublicPresetCategoryTree = PresetCategoryTree;
 
 export type InspirationFilters = {
   primary?: string;
@@ -13,8 +16,27 @@ export type InspirationFilters = {
   q?: string;
 };
 
+/**
+ * 从公开预设聚合一级 / 二级类目；一级、二级各自按 zh-Hans 排序便于浏览。
+ */
+export async function fetchPublicPresetCategoryTree(
+  supabase: Client
+): Promise<PublicPresetCategoryTree> {
+  const { data, error } = await supabase
+    .from("presets")
+    .select("primary_category, secondary_category")
+    .eq("is_public", true);
+
+  if (error || !data?.length) {
+    return {};
+  }
+
+  return buildPresetCategoryTree(data);
+}
+
 export function parseInspirationSearchParams(
-  sp: Record<string, string | string[] | undefined>
+  sp: Record<string, string | string[] | undefined>,
+  categoryTree: PublicPresetCategoryTree
 ): InspirationFilters {
   const raw = (k: string) => {
     const v = sp[k];
@@ -25,9 +47,13 @@ export function parseInspirationSearchParams(
   const q = raw("q")?.trim();
 
   const p =
-    primary && isKnownPrimary(primary) ? primary : undefined;
+    primary && Object.prototype.hasOwnProperty.call(categoryTree, primary)
+      ? primary
+      : undefined;
   const s =
-    p && secondary && isValidCategoryPair(p, secondary)
+    p &&
+    secondary &&
+    (categoryTree[p]?.includes(secondary) ?? false)
       ? secondary
       : undefined;
 

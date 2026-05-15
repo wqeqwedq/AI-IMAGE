@@ -20,8 +20,10 @@ export const NavMain = () => {
   const sidebarT = useTranslations("sidebar");
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>{sidebarT("name")}</SidebarGroupLabel>
-      <SidebarMenu>
+      <SidebarGroupLabel className="text-sm">
+        {sidebarT("name")}
+      </SidebarGroupLabel>
+      <SidebarMenu className="text-base">
         {navData.map((item: any) => (
           <Link
             href={item.url}
@@ -34,7 +36,10 @@ export const NavMain = () => {
             )}
           >
             <SidebarMenuItem>
-              <SidebarMenuButton tooltip={item.title}>
+              <SidebarMenuButton
+                tooltip={item.title}
+                className="h-10 text-base [&>svg]:size-5"
+              >
                 {item.icon && <item.icon />}
                 <span>{item.title}</span>
               </SidebarMenuButton>

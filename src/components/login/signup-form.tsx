@@ -1,5 +1,5 @@
 "use client";
-import React, { useId, useState } from "react";
+import React, { useEffect, useId, useState } from "react";
 import {
   Form,
   FormControl,
@@ -14,7 +14,7 @@ import { useForm } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { signupAction } from "@/app/actions/auth-actions";
 import { redirect } from "next/navigation";
@@ -22,9 +22,12 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { GoogleSignin } from "./google-signin";
 import { GithubSignin } from "./github-signin";
+import { useAuthBrandPanel } from "@/components/login/auth-brand-panel-context";
 
 export const SignUpForm = () => {
+  const { patch } = useAuthBrandPanel();
   const [loading, setLoading] = useState(false);
+  const [showPwd, setShowPwd] = useState(false);
   const toastId = useId();
   const signUpFormT = useTranslations("login.signUpForm");
   const formSchema = z
@@ -60,6 +63,17 @@ export const SignUpForm = () => {
       confirmPassword: "",
     },
   });
+  const watchedPassword = form.watch("password");
+  const watchedConfirm = form.watch("confirmPassword");
+
+  useEffect(() => {
+    patch({
+      password: watchedPassword ?? "",
+      confirmPassword: watchedConfirm ?? "",
+      showPassword: showPwd,
+    });
+  }, [watchedPassword, watchedConfirm, showPwd, patch]);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setLoading(true);
     toast.loading(signUpFormT("info1"), { id: toastId });
@@ -119,7 +133,18 @@ export const SignUpForm = () => {
                   <FormItem>
                     <FormLabel>{signUpFormT("email")}</FormLabel>
                     <FormControl>
-                      <Input placeholder="name@ecample.com" {...field} />
+                      <Input
+                        placeholder="name@ecample.com"
+                        autoComplete="email"
+                        {...field}
+                        onFocus={() => {
+                          patch({ isTyping: true });
+                        }}
+                        onBlur={() => {
+                          field.onBlur();
+                          patch({ isTyping: false });
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -132,11 +157,27 @@ export const SignUpForm = () => {
                   <FormItem>
                     <FormLabel>{signUpFormT("password")}</FormLabel>
                     <FormControl>
-                      <Input
-                        type="password"
-                        placeholder={signUpFormT("passwordInfo")}
-                        {...field}
-                      />
+                      <div className="relative">
+                        <Input
+                          type={showPwd ? "text" : "password"}
+                          placeholder={signUpFormT("passwordInfo")}
+                          autoComplete="new-password"
+                          className="pr-10"
+                          {...field}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPwd((v) => !v)}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-muted-foreground hover:text-foreground"
+                          aria-label={showPwd ? "Hide password" : "Show password"}
+                        >
+                          {showPwd ? (
+                            <EyeOff className="size-4" />
+                          ) : (
+                            <Eye className="size-4" />
+                          )}
+                        </button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -150,8 +191,9 @@ export const SignUpForm = () => {
                     <FormLabel>{signUpFormT("confirmPassword")}</FormLabel>
                     <FormControl>
                       <Input
-                        type="password"
+                        type={showPwd ? "text" : "password"}
                         placeholder={signUpFormT("confirmPasswordEnter")}
+                        autoComplete="new-password"
                         {...field}
                       />
                     </FormControl>

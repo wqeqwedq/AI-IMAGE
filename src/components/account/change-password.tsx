@@ -1,5 +1,5 @@
 "use client";
-import React, { useId, useState } from "react";
+import React, { useEffect, useId, useState } from "react";
 import {
   Form,
   FormControl,
@@ -15,14 +15,17 @@ import { useForm } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { changePasswordAction } from "@/app/actions/auth-actions";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useAuthBrandPanel } from "@/components/login/auth-brand-panel-context";
 
 export const ChangePassword = () => {
+  const { patch } = useAuthBrandPanel();
   const [loading, setLoading] = useState(false);
+  const [showPwd, setShowPwd] = useState(false);
   const router = useRouter();
   const toastId = useId();
   const changePasswordT = useTranslations("account.changePassword");
@@ -46,6 +49,17 @@ export const ChangePassword = () => {
       confirmPassword: "",
     },
   });
+  const watchedPassword = form.watch("password");
+  const watchedConfirm = form.watch("confirmPassword");
+
+  useEffect(() => {
+    patch({
+      password: watchedPassword ?? "",
+      confirmPassword: watchedConfirm ?? "",
+      showPassword: showPwd,
+    });
+  }, [watchedPassword, watchedConfirm, showPwd, patch]);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     toast.loading(changePasswordT("infoLoading"), { id: toastId });
     setLoading(true);
@@ -60,8 +74,11 @@ export const ChangePassword = () => {
         setLoading(false);
         router.push("/login");
       }
-    } catch (error: any) {
-      toast.error(String(error?.message), { id: toastId });
+    } catch (error: unknown) {
+      toast.error(
+        error instanceof Error ? error.message : String(error),
+        { id: toastId }
+      );
     } finally {
       setLoading(false);
     }
@@ -85,7 +102,26 @@ export const ChangePassword = () => {
               <FormItem>
                 <FormLabel> {changePasswordT("password")}</FormLabel>
                 <FormControl>
-                  <Input type={"password"} {...field} />
+                  <div className="relative">
+                    <Input
+                      type={showPwd ? "text" : "password"}
+                      autoComplete="new-password"
+                      className="pr-10"
+                      {...field}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPwd((v) => !v)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-muted-foreground hover:text-foreground"
+                      aria-label={showPwd ? "Hide password" : "Show password"}
+                    >
+                      {showPwd ? (
+                        <EyeOff className="size-4" />
+                      ) : (
+                        <Eye className="size-4" />
+                      )}
+                    </button>
+                  </div>
                 </FormControl>
                 <FormDescription>
                   {changePasswordT("passwordDesc")}
@@ -101,7 +137,11 @@ export const ChangePassword = () => {
               <FormItem>
                 <FormLabel>{changePasswordT("confirmPassword")}</FormLabel>
                 <FormControl>
-                  <Input type={"password"} {...field} />
+                  <Input
+                    type={showPwd ? "text" : "password"}
+                    autoComplete="new-password"
+                    {...field}
+                  />
                 </FormControl>
                 <FormDescription>
                   {changePasswordT("confirmPasswordDesc")}

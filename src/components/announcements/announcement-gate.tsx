@@ -15,6 +15,70 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+/** 本地日历日 YYYY-MM-DD（用户时区），用于「同一天只自动弹出一次」 */
+function getLocalCalendarDay(): string {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+const DAILY_GATE_STORAGE_KEY = "announcement_daily_gate_v1";
+
+type DailyGatePayload = {
+  userId: string;
+  announcementId: string;
+  calendarDay: string;
+};
+
+function readDailyGate(): DailyGatePayload | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(DAILY_GATE_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as DailyGatePayload;
+    if (
+      typeof parsed?.userId === "string" &&
+      typeof parsed?.announcementId === "string" &&
+      typeof parsed?.calendarDay === "string"
+    ) {
+      return parsed;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function alreadyShownThisAnnouncementToday(
+  userId: string,
+  announcementId: string
+): boolean {
+  const today = getLocalCalendarDay();
+  const stored = readDailyGate();
+  return (
+    stored !== null &&
+    stored.userId === userId &&
+    stored.announcementId === announcementId &&
+    stored.calendarDay === today
+  );
+}
+
+function markAnnouncementShownToday(userId: string, announcementId: string) {
+  if (typeof window === "undefined") return;
+  try {
+    const payload: DailyGatePayload = {
+      userId,
+      announcementId,
+      calendarDay: getLocalCalendarDay(),
+    };
+    localStorage.setItem(DAILY_GATE_STORAGE_KEY, JSON.stringify(payload));
+  } catch {
+    // 无痕模式 / 存储配额等：忽略，仅影响当日是否再次弹出
+  }
+}
+
 export function AnnouncementGate() {
   const t = useTranslations("announcement");
   const [open, setOpen] = useState(false);
@@ -47,14 +111,8 @@ export function AnnouncementGate() {
 
       if (cancelled || annErr || !ann) return;
 
-      const { data: read } = await supabase
-        .from("announcement_reads")
-        .select("id")
-        .eq("announcement_id", ann.id)
-        .eq("user_id", user.id)
-        .maybeSingle();
-
-      if (cancelled || read) return;
+      // 与 DB「已读」解耦：最新一条公告在每个自然日首次进入后台时弹出一次（同一浏览器）
+      if (alreadyShownThisAnnouncementToday(user.id, ann.id)) return;
 
       setAnnouncement(ann);
       setOpen(true);
@@ -92,6 +150,7 @@ export function AnnouncementGate() {
       return;
     }
 
+    markAnnouncementShownToday(user.id, announcement.id);
     setOpen(false);
     setAnnouncement(null);
   };

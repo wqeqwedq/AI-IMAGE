@@ -22,12 +22,12 @@ export const navList = {
       icon: Images,
     },
     {
-      title: "Inspiration",
+      title: "Common templates",
       url: "/models",
       icon: Sparkles,
     },
     {
-      title: "Preset library",
+      title: "My templates",
       url: "/model-training",
       icon: Bookmark,
     },
@@ -65,12 +65,12 @@ export const navList = {
       icon: Images,
     },
     {
-      title: "灵感来源",
+      title: "常用模板",
       url: "/models",
       icon: Sparkles,
     },
     {
-      title: "灵感库",
+      title: "我的模板",
       url: "/model-training",
       icon: Bookmark,
     },
