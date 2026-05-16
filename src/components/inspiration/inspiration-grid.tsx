@@ -89,24 +89,20 @@ export default function InspirationGrid({
       >
         <DialogContent
           hideClose
-          className="max-h-[90vh] max-w-[min(96vw,1200px)] border-0 bg-transparent p-0 shadow-none outline-none data-[state=open]:bg-transparent sm:max-w-[min(96vw,1200px)]"
+          className="flex max-h-[min(96dvh,100vh)] w-[min(96vw,1200px)] max-w-[min(96vw,1200px)] cursor-zoom-out items-center justify-center border-0 bg-transparent p-4 shadow-none outline-none sm:max-w-[min(96vw,1200px)]"
           onOpenAutoFocus={(e) => e.preventDefault()}
+          onClick={() => setLightboxUrl(null)}
         >
           <DialogTitle className="sr-only">{t("lightboxTitle")}</DialogTitle>
           {lightboxUrl ? (
-            <div
-              className="relative mx-auto flex h-[min(85vh,900px)] w-full min-w-[min(90vw,320px)] items-center justify-center"
-              onPointerDown={(e) => e.stopPropagation()}
-            >
-              {/* 原生 img：cover_image 可为任意 HTTPS 域名，不经 next/image 白名单 */}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={lightboxUrl}
-                alt=""
-                className="max-h-full max-w-full object-contain"
-                decoding="async"
-              />
-            </div>
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={lightboxUrl}
+              alt=""
+              className="max-h-[min(85vh,900px)] max-w-full cursor-default object-contain"
+              decoding="async"
+              onClick={(e) => e.stopPropagation()}
+            />
           ) : null}
         </DialogContent>
       </Dialog>
