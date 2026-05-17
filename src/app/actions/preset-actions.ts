@@ -92,22 +92,23 @@ const PRESET_REFS_BUCKET = "ai_image_preset_refs";
 
 export async function uploadPresetReferenceFilesAction(
   formData: FormData
-): Promise<{ urls: string[]; error: string | null }> {
+): Promise<{ urls: string[]; paths: string[]; error: string | null }> {
   const supabase = await createServer();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    return { urls: [], error: "Unauthorized" };
+    return { urls: [], paths: [], error: "Unauthorized" };
   }
 
   const raw = formData.getAll("files");
   const files = raw.filter((f): f is File => f instanceof File && f.size > 0);
   if (files.length === 0) {
-    return { urls: [], error: null };
+    return { urls: [], paths: [], error: null };
   }
 
   const urls: string[] = [];
+  const paths: string[] = [];
   for (const file of files) {
     const safeBase = file.name.replace(/[^\w.\-]+/g, "_").slice(0, 120);
     const ext =
@@ -122,16 +123,17 @@ export async function uploadPresetReferenceFilesAction(
       });
 
     if (upErr) {
-      return { urls: [], error: upErr.message };
+      return { urls: [], paths: [], error: upErr.message };
     }
 
     const { data: pub } = supabase.storage
       .from(PRESET_REFS_BUCKET)
       .getPublicUrl(path);
     urls.push(pub.publicUrl);
+    paths.push(path);
   }
 
-  return { urls, error: null };
+  return { urls, paths, error: null };
 }
 
 export async function deleteUserPresetAction(

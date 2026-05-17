@@ -1,5 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2";
+
+const PRESET_REFS_BUCKET = "ai_image_preset_refs";
 
 const corsHeaders: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
@@ -66,6 +68,35 @@ function getPrimaryApimartTaskRecord(
     return rawResult as Record<string, unknown>;
   }
   return undefined;
+}
+
+/** 校验客户端传入的待清理路径（仅允许当前用户在本桶下的对象） */
+function sanitizeCleanupRefPaths(raw: unknown, userId: string): string[] {
+  if (!Array.isArray(raw)) return [];
+  const paths = new Set<string>();
+  for (const item of raw) {
+    if (typeof item !== "string") continue;
+    const path = item.trim();
+    if (!path || path.includes("..")) continue;
+    if (!path.startsWith(`${userId}/`)) continue;
+    paths.add(path);
+  }
+  return [...paths];
+}
+
+async function deleteOwnPresetRefObjects(
+  admin: SupabaseClient,
+  paths: string[]
+): Promise<void> {
+  if (paths.length === 0) return;
+  const { error } = await admin.storage.from(PRESET_REFS_BUCKET).remove(paths);
+  if (error) {
+    console.error(
+      "create-generation-job: failed to delete preset ref objects",
+      error.message,
+      paths
+    );
+  }
 }
 
 function extractApimartTaskId(root: Record<string, unknown>): string {
@@ -279,6 +310,12 @@ Deno.serve(async (req: Request) => {
   }
 
   const admin = createClient(supabaseUrl, serviceKey);
+
+  const refPathsToDelete = sanitizeCleanupRefPaths(
+    body.cleanup_ref_paths,
+    user.id
+  );
+
   const { data: jobId, error: rpcErr } = await admin.rpc(
     "ai_image_start_generation_job",
     {
@@ -288,6 +325,9 @@ Deno.serve(async (req: Request) => {
       p_result_url: immediateUrl,
     }
   );
+
+  // Apimart 已受理任务（已有 task_id），可清理桶内临时参考图；删除失败不阻断主流程
+  await deleteOwnPresetRefObjects(admin, refPathsToDelete);
 
   if (rpcErr) {
     console.error("ai_image_start_generation_job", rpcErr);

@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
@@ -29,6 +29,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Info, X } from "lucide-react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 import useGeneratedStore from "@/store/useGeneratedStore.ts";
 import { useTranslations } from "next-intl";
@@ -72,6 +79,79 @@ function mergeRefUrls(
     if (out.length > max) return null;
   }
   return out;
+}
+
+function RefPreviewSlide({
+  previewUrl,
+  onRemove,
+  removeLabel,
+}: {
+  previewUrl: string;
+  onRemove: () => void;
+  removeLabel: string;
+}) {
+  return (
+    <div className="relative flex h-full w-full min-w-0 items-center justify-center overflow-hidden rounded-md bg-muted/30">
+      <img
+        src={previewUrl}
+        alt=""
+        className="max-h-full max-w-full object-contain"
+      />
+      <Button
+        type="button"
+        size="icon"
+        variant="secondary"
+        className="absolute right-1 top-1 z-10 h-7 w-7 shrink-0 rounded-full shadow-sm"
+        onClick={onRemove}
+        aria-label={removeLabel}
+      >
+        <X className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+}
+
+function PendingRefPreviews({
+  previewUrls,
+  onRemoveAt,
+  removeLabel,
+}: {
+  previewUrls: string[];
+  onRemoveAt: (index: number) => void;
+  removeLabel: string;
+}) {
+  if (previewUrls.length === 0) return null;
+
+  if (previewUrls.length === 1) {
+    return (
+      <RefPreviewSlide
+        previewUrl={previewUrls[0]}
+        onRemove={() => onRemoveAt(0)}
+        removeLabel={removeLabel}
+      />
+    );
+  }
+
+  return (
+    <Carousel className="relative h-full w-full min-w-0 px-7 [&>div:first-child]:h-full">
+      <CarouselContent className="ml-0 h-full">
+        {previewUrls.map((url, index) => (
+          <CarouselItem
+            key={`${url}-${index}`}
+            className="h-full min-h-0 basis-full pl-0"
+          >
+            <RefPreviewSlide
+              previewUrl={url}
+              onRemove={() => onRemoveAt(index)}
+              removeLabel={removeLabel}
+            />
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      <CarouselPrevious className="left-0 top-1/2 h-7 w-7 -translate-y-1/2 border-border/60 bg-background/90" />
+      <CarouselNext className="right-0 top-1/2 h-7 w-7 -translate-y-1/2 border-border/60 bg-background/90" />
+    </Carousel>
+  );
 }
 
 export const ImageGenerationFormSchema = () => {
@@ -123,6 +203,8 @@ export type GenerateImageSubmitPayload = {
   size: string;
   resolution: string;
   image_urls: string[];
+  /** 本次会话新上传、任务提交后可从桶中删除的参考图路径 */
+  cleanup_ref_paths?: string[];
 };
 
 const defaultFormValues = (): ImageGenerationFormValues => ({
@@ -169,6 +251,17 @@ const Configurations = ({ userPresets }: ConfiguratinsPros) => {
     defaultValue: "1k",
   });
 
+  const previewUrls = useMemo(
+    () => pendingRefFiles.map((file) => URL.createObjectURL(file)),
+    [pendingRefFiles]
+  );
+
+  useEffect(() => {
+    return () => {
+      for (const url of previewUrls) URL.revokeObjectURL(url);
+    };
+  }, [previewUrls]);
+
   const onSubmit = async (values: ImageGenerationFormValues) => {
     const uniqueLines = new Set(
       values.image_urls_text
@@ -186,17 +279,19 @@ const Configurations = ({ userPresets }: ConfiguratinsPros) => {
     }
 
     let uploadedUrls: string[] = [];
+    let uploadedPaths: string[] = [];
     if (pendingRefFiles.length > 0) {
       const fd = new FormData();
       for (const f of pendingRefFiles) {
         fd.append("files", f);
       }
-      const { urls, error } = await uploadPresetReferenceFilesAction(fd);
+      const { urls, paths, error } = await uploadPresetReferenceFilesAction(fd);
       if (error) {
         toast.error(error ?? settingsT("uploadRefsFailed"));
         return;
       }
       uploadedUrls = urls;
+      uploadedPaths = paths;
     }
 
     const merged = mergeRefUrls(
@@ -217,6 +312,9 @@ const Configurations = ({ userPresets }: ConfiguratinsPros) => {
       size: values.size,
       resolution: values.resolution,
       image_urls: merged,
+      ...(uploadedPaths.length > 0
+        ? { cleanup_ref_paths: uploadedPaths }
+        : {}),
     };
     await generateImageStore(payload);
     setPendingRefFiles([]);
@@ -251,10 +349,14 @@ const Configurations = ({ userPresets }: ConfiguratinsPros) => {
   };
 
   return (
-    <TooltipProvider>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <fieldset className="grid gap-6 p-4 bg-background rounded-lg border">
+    <div className="flex min-h-0 w-full min-w-0 flex-col lg:h-full">
+      <TooltipProvider>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex min-h-0 w-full min-w-0 max-w-full flex-col"
+          >
+            <fieldset className="grid min-h-0 w-full min-w-0 max-w-full flex-1 gap-6 overflow-x-hidden overflow-y-auto rounded-lg border bg-background p-4">
             <legend className="text-sm -ml-1 px-1 font-medium">
               {settingsT("name")}
             </legend>
@@ -397,7 +499,7 @@ const Configurations = ({ userPresets }: ConfiguratinsPros) => {
               control={form.control}
               name="image_urls_text"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="min-w-0">
                   <FormLabel>{settingsT("fieldRefImages")}</FormLabel>
                   <p className="text-xs text-muted-foreground">
                     {settingsT("fieldRefImagesHint")}
@@ -406,10 +508,11 @@ const Configurations = ({ userPresets }: ConfiguratinsPros) => {
                     <Textarea
                       {...field}
                       rows={4}
+                      className="max-w-full break-all"
                       placeholder={settingsT("fieldRefImagesPlaceholder")}
                     />
                   </FormControl>
-                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2 pt-1">
                     <input
                       ref={fileInputRef}
                       type="file"
@@ -427,42 +530,31 @@ const Configurations = ({ userPresets }: ConfiguratinsPros) => {
                       {settingsT("pickRefImages")}
                     </Button>
                   </div>
-                  {pendingRefFiles.length > 0 ? (
-                    <ul className="space-y-1 rounded-md border p-2 text-sm">
-                      {pendingRefFiles.map((f, i) => (
-                        <li
-                          key={`${f.name}-${i}`}
-                          className="flex items-center justify-between gap-2"
-                        >
-                          <span className="truncate text-muted-foreground">
-                            {f.name}
-                          </span>
-                          <Button
-                            type="button"
-                            size="icon"
-                            variant="ghost"
-                            className="h-8 w-8 shrink-0"
-                            onClick={() => removePendingRefAt(i)}
-                            aria-label={settingsT("removePendingRef")}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
+                  <div
+                    className="h-36 w-full min-w-0 shrink-0 overflow-hidden rounded-md border border-border/50 bg-muted/10 p-2"
+                    aria-live="polite"
+                  >
+                    <PendingRefPreviews
+                      previewUrls={previewUrls}
+                      onRemoveAt={removePendingRefAt}
+                      removeLabel={settingsT("removePendingRef")}
+                    />
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            <Button type="submit" className="w-full font-medium">
-              {settingsT("generate")}
-            </Button>
           </fieldset>
+          <Button
+            type="submit"
+            className="mt-4 h-10 w-full shrink-0 font-medium"
+          >
+            {settingsT("generate")}
+          </Button>
         </form>
       </Form>
     </TooltipProvider>
+    </div>
   );
 };
 
