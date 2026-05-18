@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { DisplayImage } from "@/components/shared/display-image";
 import {
   Carousel,
   CarouselContent,
@@ -47,14 +47,11 @@ const GeneratedImages = () => {
                 aria-label={t("generatedImages.viewFull")}
               >
                 <div className="relative mx-auto aspect-square w-full max-w-[min(100%,min(85vh,80rem))]">
-                  {/* unoptimized：缩略图也直接请求 Apimart URL，不经 /_next/image 代理 */}
-                  <Image
-                    src={image.url}
+                  <DisplayImage
+                    originalUrl={image.url}
                     alt={t("generatedImages.alt")}
-                    fill
-                    unoptimized
+                    variant="preview"
                     className="object-contain"
-                    sizes="(max-width: 1024px) calc(100vw - 4rem), min(66vw, 1200px)"
                     priority={index === 0}
                   />
                 </div>
@@ -71,7 +68,7 @@ const GeneratedImages = () => {
         onOpenChange={(open) => {
           if (!open) setLightboxUrl(null);
         }}
-        imageUrl={lightboxUrl ?? ""}
+        originalUrl={lightboxUrl ?? ""}
         prompt=""
         title={t("generatedImages.fullTitle")}
         copyLabel={t("generatedImages.copyPrompt")}

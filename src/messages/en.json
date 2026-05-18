@@ -615,7 +615,8 @@
       "removePendingRef": "Remove",
       "uploadRefsFailed": "Reference image upload failed",
       "refLimitToast": "At most 16 reference images (lines plus uploads)",
-      "generate": "Generate"
+      "generate": "Generate",
+      "generating": "Generating image…"
     },
     "formSchema": {
       "preset": "Please choose a scenario preset or None",

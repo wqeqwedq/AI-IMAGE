@@ -1,7 +1,7 @@
 import { Tables } from "@datatypes.types";
 import React from "react";
-import Image from "next/image";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { DisplayImage } from "@/components/shared/display-image";
 
 import {
   Sheet,
@@ -16,6 +16,7 @@ import DeleteImage from "./delete-image";
 
 interface ImageDialogProps {
   image: {
+    /** Storage 签名原图 URL */
     url: string | undefined;
   } & Tables<"ai_image_generated_images">;
   onClose: () => void;
@@ -47,12 +48,14 @@ const ImageDialog = ({ image, onClose }: ImageDialogProps) => {
           <SheetTitle className="text-2xl w-full">Image Details</SheetTitle>
           <ScrollArea className="flex flex-col h-[100vh]">
             <div className="relative w-fit h-fit">
-              <Image
-                src={image.url || ""}
+              <DisplayImage
+                originalUrl={image.url || ""}
                 alt={image.prompt || ""}
-                width={image.width || 0}
-                height={image.height || 0}
-                className="rounded h-auto w-full flex mb-3"
+                variant="preview"
+                fill={false}
+                width={image.width || 640}
+                height={image.height || 480}
+                className="mb-3 flex h-auto w-full rounded"
               />
               <div className="flex gap-4 absolute bottom-4 right-4">
                 <Button className="w-fit" onClick={handleDownload}>

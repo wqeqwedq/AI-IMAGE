@@ -48,7 +48,7 @@ const JobImageDialog = ({ item, onClose }: JobImageDialogProps) => {
   };
 
   const handleDownload = () => {
-    fetch(item.url)
+    fetch(item.originalUrl)
       .then((r) => r.blob())
       .then((blob) => {
         const url = window.URL.createObjectURL(blob);
@@ -89,7 +89,7 @@ const JobImageDialog = ({ item, onClose }: JobImageDialogProps) => {
           }}
         >
           <img
-            src={item.url}
+            src={item.originalUrl}
             alt=""
             decoding="async"
             className={cn(

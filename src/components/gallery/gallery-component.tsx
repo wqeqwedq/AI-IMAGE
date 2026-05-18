@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { GenerationJobGalleryItem } from "@/app/actions/image-action";
+import { DisplayImage } from "@/components/shared/display-image";
 import JobImageDialog from "./job-image-dialog";
 
 interface GalleryProps {
@@ -41,13 +41,11 @@ const GalleryComponent = ({ items }: GalleryProps) => {
                     {galleryT("viewLarge")}
                   </span>
                 </div>
-                <Image
-                  src={item.url}
+                <DisplayImage
+                  originalUrl={item.originalUrl}
                   alt=""
-                  fill
-                  unoptimized
+                  variant="thumbnail"
                   className="object-cover"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                 />
               </div>
             </button>

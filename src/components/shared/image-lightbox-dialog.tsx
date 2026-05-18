@@ -15,8 +15,8 @@ import { cn } from "@/lib/utils";
 export type ImageLightboxDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** 数据库 / Apimart 原始地址；用原生 img 避免经 _next/image 代理 */
-  imageUrl: string;
+  /** 原图地址；大图预览与下载使用，不经缩略图优化 */
+  originalUrl: string;
   prompt: string;
   /** 无障碍标题（可来自翻译） */
   title: string;
@@ -27,7 +27,7 @@ export type ImageLightboxDialogProps = {
   footerExtra?: React.ReactNode;
   /** 无提示词时的占位 */
   emptyPromptLabel: string;
-  /** imageUrl 为空时展示（勿对原生 img 传 src=""） */
+  /** originalUrl 为空时展示（勿对原生 img 传 src=""） */
   emptyImageLabel?: string;
   /** 仅放大图片：不展示提示词、复制等底部信息 */
   imageOnly?: boolean;
@@ -36,7 +36,7 @@ export type ImageLightboxDialogProps = {
 export function ImageLightboxDialog({
   open,
   onOpenChange,
-  imageUrl,
+  originalUrl,
   prompt,
   title,
   copyLabel,
@@ -47,7 +47,7 @@ export function ImageLightboxDialog({
   imageOnly = false,
 }: ImageLightboxDialogProps) {
   const displayPrompt = prompt.trim() ? prompt : emptyPromptLabel;
-  const safeImageSrc = imageUrl.trim();
+  const safeImageSrc = originalUrl.trim();
 
   const copyPrompt = async () => {
     const text = prompt.trim();
@@ -92,7 +92,6 @@ export function ImageLightboxDialog({
             )}
           >
             {safeImageSrc ? (
-              /* 原生 img：浏览器请求的就是 result_url，不会变成 /_next/image?... */
               <img
                 src={safeImageSrc}
                 alt=""

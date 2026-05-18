@@ -70,7 +70,6 @@ function getPrimaryApimartTaskRecord(
   return undefined;
 }
 
-/** 校验客户端传入的待清理路径（仅允许当前用户在本桶下的对象） */
 function sanitizeCleanupRefPaths(raw: unknown, userId: string): string[] {
   if (!Array.isArray(raw)) return [];
   const paths = new Set<string>();
@@ -86,13 +85,14 @@ function sanitizeCleanupRefPaths(raw: unknown, userId: string): string[] {
 
 async function deleteOwnPresetRefObjects(
   admin: SupabaseClient,
-  paths: string[]
+  paths: string[],
+  logPrefix: string
 ): Promise<void> {
   if (paths.length === 0) return;
   const { error } = await admin.storage.from(PRESET_REFS_BUCKET).remove(paths);
   if (error) {
     console.error(
-      "create-generation-job: failed to delete preset ref objects",
+      `${logPrefix}: failed to delete preset ref objects`,
       error.message,
       paths
     );
@@ -295,7 +295,12 @@ Deno.serve(async (req: Request) => {
     );
   }
 
-  const requestSnapshot = {
+  const refPathsToDelete = sanitizeCleanupRefPaths(
+    body.cleanup_ref_paths,
+    user.id
+  );
+
+  const requestSnapshot: Record<string, unknown> = {
     model: payload.model,
     prompt: payload.prompt,
     n: payload.n,
@@ -303,6 +308,9 @@ Deno.serve(async (req: Request) => {
     resolution: payload.resolution,
     image_urls: payload.image_urls ?? [],
   };
+  if (refPathsToDelete.length > 0) {
+    requestSnapshot.cleanup_ref_paths = refPathsToDelete;
+  }
 
   let immediateUrl: string | null = null;
   if (data?.status === "completed") {
@@ -310,11 +318,6 @@ Deno.serve(async (req: Request) => {
   }
 
   const admin = createClient(supabaseUrl, serviceKey);
-
-  const refPathsToDelete = sanitizeCleanupRefPaths(
-    body.cleanup_ref_paths,
-    user.id
-  );
 
   const { data: jobId, error: rpcErr } = await admin.rpc(
     "ai_image_start_generation_job",
@@ -325,9 +328,6 @@ Deno.serve(async (req: Request) => {
       p_result_url: immediateUrl,
     }
   );
-
-  // Apimart 已受理任务（已有 task_id），可清理桶内临时参考图；删除失败不阻断主流程
-  await deleteOwnPresetRefObjects(admin, refPathsToDelete);
 
   if (rpcErr) {
     console.error("ai_image_start_generation_job", rpcErr);
@@ -340,6 +340,15 @@ Deno.serve(async (req: Request) => {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
+    );
+  }
+
+  // 同步完成且已有结果 URL 时再清理桶内临时参考图，避免上游尚未拉取参考图
+  if (immediateUrl) {
+    await deleteOwnPresetRefObjects(
+      admin,
+      refPathsToDelete,
+      "create-generation-job"
     );
   }
 

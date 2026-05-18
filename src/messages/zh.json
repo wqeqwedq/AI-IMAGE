@@ -615,7 +615,8 @@
       "removePendingRef": "移除",
       "uploadRefsFailed": "参考图上传失败",
       "refLimitToast": "参考图最多 16 条（文本行与上传合计）",
-      "generate": "生成图片"
+      "generate": "生成图片",
+      "generating": "正在生成图片…"
     },
     "formSchema": {
       "preset": "请选择场景预设或「无」",

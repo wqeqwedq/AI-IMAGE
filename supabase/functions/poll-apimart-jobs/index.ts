@@ -1,11 +1,52 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2";
+
+const PRESET_REFS_BUCKET = "ai_image_preset_refs";
 
 type PollingJob = {
   id: string;
+  user_id: string;
   external_task_id: string;
   poll_count: number;
+  request_payload: Record<string, unknown> | null;
 };
+
+function sanitizeCleanupRefPaths(raw: unknown, userId: string): string[] {
+  if (!Array.isArray(raw)) return [];
+  const paths = new Set<string>();
+  for (const item of raw) {
+    if (typeof item !== "string") continue;
+    const path = item.trim();
+    if (!path || path.includes("..")) continue;
+    if (!path.startsWith(`${userId}/`)) continue;
+    paths.add(path);
+  }
+  return [...paths];
+}
+
+function cleanupPathsFromRequestPayload(
+  payload: Record<string, unknown> | null | undefined,
+  userId: string
+): string[] {
+  if (!payload) return [];
+  return sanitizeCleanupRefPaths(payload.cleanup_ref_paths, userId);
+}
+
+async function deleteOwnPresetRefObjects(
+  admin: SupabaseClient,
+  paths: string[],
+  logPrefix: string
+): Promise<void> {
+  if (paths.length === 0) return;
+  const { error } = await admin.storage.from(PRESET_REFS_BUCKET).remove(paths);
+  if (error) {
+    console.error(
+      `${logPrefix}: failed to delete preset ref objects`,
+      error.message,
+      paths
+    );
+  }
+}
 
 function firstResultUrl(data: Record<string, unknown>): string | null {
   const result = data.result as Record<string, unknown> | undefined;
@@ -21,7 +62,7 @@ async function settleJob(
   jobId: string,
   success: boolean,
   resultUrl: string | null
-): Promise<void> {
+): Promise<boolean> {
   const { error } = await admin.rpc("ai_image_settle_generation_job", {
     p_job_id: jobId,
     p_success: success,
@@ -29,7 +70,9 @@ async function settleJob(
   });
   if (error) {
     console.error("ai_image_settle_generation_job", jobId, error);
+    return false;
   }
+  return true;
 }
 
 /** 与 create-generation-job 一致：GET /tasks 的 data 多为单对象，兼容数组首项 */
@@ -81,7 +124,7 @@ Deno.serve(async (req: Request) => {
   const admin = createClient(supabaseUrl, serviceKey);
   const { data: jobs, error: qErr } = await admin
     .from("ai_image_generation_jobs")
-    .select("id, external_task_id, poll_count")
+    .select("id, user_id, external_task_id, poll_count, request_payload")
     .eq("status", "polling")
     .order("updated_at", { ascending: true })
     .limit(50);
@@ -138,7 +181,18 @@ Deno.serve(async (req: Request) => {
     if (st === "completed") {
       const url = firstResultUrl(d);
       if (url) {
-        await settleJob(admin, job.id, true, url);
+        const settled = await settleJob(admin, job.id, true, url);
+        if (settled) {
+          const refPaths = cleanupPathsFromRequestPayload(
+            job.request_payload,
+            job.user_id
+          );
+          await deleteOwnPresetRefObjects(
+            admin,
+            refPaths,
+            "poll-apimart-jobs"
+          );
+        }
       } else {
         await settleJob(admin, job.id, false, null);
       }

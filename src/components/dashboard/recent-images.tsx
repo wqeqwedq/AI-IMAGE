@@ -7,8 +7,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import Image from "next/image";
 import Link from "next/link";
+import { DisplayImage } from "@/components/shared/display-image";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -48,13 +48,11 @@ const RecentImage = ({ items }: RecentImagesProps) => {
                 className="basis-full md:basis-1/2 lg:basis-1/3"
               >
                 <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
-                  <Image
-                    src={item.url}
+                  <DisplayImage
+                    originalUrl={item.originalUrl}
                     alt=""
-                    fill
-                    unoptimized
+                    variant="thumbnail"
                     className="object-cover"
-                    sizes="(max-width: 768px) 100vw, 33vw"
                   />
                 </div>
               </CarouselItem>

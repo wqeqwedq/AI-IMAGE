@@ -157,7 +157,8 @@ export const getGenerationJobAction = async (
 /** 画廊 / 仪表盘：异步任务成功记录（仅展示用） */
 export type GenerationJobGalleryItem = {
   id: string;
-  url: string;
+  /** 原图 URL（Apimart 等）；列表用 next/image 缩略图，下载与大图用此字段 */
+  originalUrl: string;
   prompt: string;
   created_at: string;
 };
@@ -210,7 +211,7 @@ export const getSucceededGenerationJobsGalleryAction = async (
     .filter((row) => row.result_url)
     .map((row) => ({
       id: row.id,
-      url: row.result_url as string,
+      originalUrl: row.result_url as string,
       prompt: promptFromJobPayload(row.request_payload),
       created_at: row.created_at,
     }));

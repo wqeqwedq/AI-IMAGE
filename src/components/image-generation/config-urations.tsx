@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -203,7 +204,7 @@ export type GenerateImageSubmitPayload = {
   size: string;
   resolution: string;
   image_urls: string[];
-  /** 本次会话新上传、任务提交后可从桶中删除的参考图路径 */
+  /** 本次会话新上传、生图成功拿到结果 URL 后可从桶中删除的参考图路径 */
   cleanup_ref_paths?: string[];
 };
 
@@ -236,9 +237,13 @@ function applyPresetRowToValues(row: UserPresetRow): ImageGenerationFormValues {
 
 const Configurations = ({ userPresets }: ConfiguratinsPros) => {
   const generateImageStore = useGeneratedStore((state) => state.generateImage);
+  const isSubmittingJob = useGeneratedStore((state) => state.loading);
   const settingsT = useTranslations("imageGeneration.settings");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [pendingRefFiles, setPendingRefFiles] = useState<File[]>([]);
+  const [isUploadingRefs, setIsUploadingRefs] = useState(false);
+
+  const isGenerating = isUploadingRefs || isSubmittingJob;
 
   const form = useForm<ImageGenerationFormValues>({
     resolver: zodResolver(ImageGenerationFormSchema()),
@@ -263,6 +268,8 @@ const Configurations = ({ userPresets }: ConfiguratinsPros) => {
   }, [previewUrls]);
 
   const onSubmit = async (values: ImageGenerationFormValues) => {
+    if (isGenerating) return;
+
     const uniqueLines = new Set(
       values.image_urls_text
         .split(/\r?\n/)
@@ -281,17 +288,23 @@ const Configurations = ({ userPresets }: ConfiguratinsPros) => {
     let uploadedUrls: string[] = [];
     let uploadedPaths: string[] = [];
     if (pendingRefFiles.length > 0) {
-      const fd = new FormData();
-      for (const f of pendingRefFiles) {
-        fd.append("files", f);
+      setIsUploadingRefs(true);
+      try {
+        const fd = new FormData();
+        for (const f of pendingRefFiles) {
+          fd.append("files", f);
+        }
+        const { urls, paths, error } =
+          await uploadPresetReferenceFilesAction(fd);
+        if (error) {
+          toast.error(error ?? settingsT("uploadRefsFailed"));
+          return;
+        }
+        uploadedUrls = urls;
+        uploadedPaths = paths;
+      } finally {
+        setIsUploadingRefs(false);
       }
-      const { urls, paths, error } = await uploadPresetReferenceFilesAction(fd);
-      if (error) {
-        toast.error(error ?? settingsT("uploadRefsFailed"));
-        return;
-      }
-      uploadedUrls = urls;
-      uploadedPaths = paths;
     }
 
     const merged = mergeRefUrls(
@@ -548,8 +561,17 @@ const Configurations = ({ userPresets }: ConfiguratinsPros) => {
           <Button
             type="submit"
             className="mt-4 h-10 w-full shrink-0 font-medium"
+            disabled={isGenerating}
+            aria-busy={isGenerating}
           >
-            {settingsT("generate")}
+            {isGenerating ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+                {settingsT("generating")}
+              </>
+            ) : (
+              settingsT("generate")
+            )}
           </Button>
         </form>
       </Form>
